@@ -1,12 +1,15 @@
 package de.se.cashregistersystem.entity;
 
 import jakarta.persistence.*;
+
+import java.util.UUID;
+
 @Entity
 @Table(name = "item_transaction")
 public class ItemTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "transaction_id", nullable = false)
