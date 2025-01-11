@@ -1,4 +1,4 @@
-package com.example.cashregistersystem;
+package de.se.cashregistersystem;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

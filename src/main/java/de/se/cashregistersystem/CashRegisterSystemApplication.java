@@ -1,4 +1,4 @@
-package com.example.cashregistersystem;
+package de.se.cashregistersystem;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
