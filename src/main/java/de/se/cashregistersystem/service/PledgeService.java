@@ -1,19 +1,20 @@
 package de.se.cashregistersystem.service;
 
-
 import de.se.cashregistersystem.dto.ItemWithQuantityDTO;
 import de.se.cashregistersystem.dto.PledgeDTO;
+import de.se.cashregistersystem.dto.PledgeItemDTO;
+import de.se.cashregistersystem.entity.Item;
 import de.se.cashregistersystem.entity.Item;
 import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.factory.PledgeFactory;
 import de.se.cashregistersystem.repository.ItemRepository;
 import de.se.cashregistersystem.repository.PledgeRepository;
-import de.se.cashregistersystem.util.POSBarcode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
+
+import java.util.List;
 
 @Service
 public class PledgeService {
@@ -46,5 +47,8 @@ public class PledgeService {
             value+= i.getPledgeValue() * item.getQuantity();
         }
         return value;
+    }
+    public List<Item> getAllPledgeItems(){
+        return itemRepository.findItemsWithPositivePledgeValue();
     }
 }

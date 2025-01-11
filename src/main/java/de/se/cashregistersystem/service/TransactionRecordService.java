@@ -47,8 +47,8 @@ public class TransactionRecordService {
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid ItemID: " + id);
                 }
                 allItems.add(currItem.get());
-                totalAmount += (currItem.getPrice() * item.getQuantity());
-                totalAmount += (currItem.getPledgeValue() * item.getQuantity());
+                totalAmount += (currItem.get().getPrice() * item.getQuantity());
+                totalAmount += (currItem.get().getPledgeValue() * item.getQuantity());
             }
         }
 
@@ -81,4 +81,5 @@ public class TransactionRecordService {
 
         return transactionRecord.getId();
     }
+
 }
