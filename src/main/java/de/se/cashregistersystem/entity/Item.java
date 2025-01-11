@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "item")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @Getter
+    private UUID id;
 
     @Setter
     @Getter
