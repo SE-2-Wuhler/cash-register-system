@@ -7,6 +7,4 @@ import java.util.UUID;
 
 public interface PledgeRepository extends JpaRepository<Pledge, UUID> {
 
-
-
 }

@@ -1,7 +1,6 @@
 package de.se.cashregistersystem.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
 
 import java.util.UUID;
 
@@ -20,18 +19,5 @@ public class ItemTransaction {
     @JoinColumn(name = "itemid", nullable = false)
     private Item item;
 
-    public void setTransactionRecord(TransactionRecord transactionRecord) {
-        this.transactionRecord = transactionRecord;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
-    }
-
-
-
+// Getters and setters
 }
