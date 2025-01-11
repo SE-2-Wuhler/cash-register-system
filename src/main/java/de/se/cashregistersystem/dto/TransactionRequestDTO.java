@@ -4,8 +4,9 @@ import java.util.UUID;
 
 public class TransactionRequestDTO {
 
-        private ItemWithQuantityDTO[] items;
-        private UUID[] pledges;
+        protected ItemWithQuantityDTO[] items;
+        protected UUID[] pledges;
+
 
     public ItemWithQuantityDTO[] getItems() {
         return items;

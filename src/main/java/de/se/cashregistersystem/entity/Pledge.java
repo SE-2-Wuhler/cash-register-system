@@ -31,8 +31,8 @@ public class Pledge {
         this.value = value;
     }
 
-    public Pledge(int barcode_id, double value){
-        this.barcodeId = barcodeId;
+    public Pledge(String barcode_id, double value){
+        this.barcodeId = barcode_id;
         this.value = value;
     }
     public double getValue() {

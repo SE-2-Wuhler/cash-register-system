@@ -1,7 +1,6 @@
 package de.se.cashregistersystem.service;
 
 import de.se.cashregistersystem.dto.ItemDTO;
-import de.se.cashregistersystem.dto.PledgeDTO;
 import de.se.cashregistersystem.util.POS;
 import de.se.cashregistersystem.util.POSPrinter;
 import de.se.cashregistersystem.util.POSReceipt;
@@ -12,6 +11,7 @@ import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,11 +26,17 @@ public class PrintingService {
         print(new ItemListPrintStrategy(items));
     }
 
-    public void printPledgeReceipt(PledgeDTO PledgeDTO) {
-        print(new PledgePrintStrategy(PledgeDTO));
+    public String printValueReceipt(double value) {
+        return print(new ValuePrintStrategy(value));
+
     }
 
-    private void print(PrintStrategy strategy) {
+    private String print(PrintStrategy strategy) {
+        String testingMode = System.getenv("TESTING_MODE");
+        if ("true".equalsIgnoreCase(testingMode)) {
+            System.out.println("Mock Printing Receipt: " + strategy.toString());
+            return "xxDebugxx";
+        }
         PrintService printerService = findPrintService(PRINTER_NAME);
         if (printerService == null) {
             throw new RuntimeException("Printer '" + PRINTER_NAME + "' not found");
@@ -44,7 +50,8 @@ public class PrintingService {
 
         strategy.addItemsToReceipt(receipt);
 
-        POSBarcode barcode = new POSBarcode(4012345678901L, POS.BarcodeType.JAN13_EAN13);
+        String barcodeString = generateRandomEAN13();
+        POSBarcode barcode = new POSBarcode(Long.parseLong(barcodeString), POS.BarcodeType.JAN13_EAN13);
         barcode.setHeight(162);
         barcode.setWidth(POS.BarWidth.DEFAULT);
         receipt.addBarcode(barcode);
@@ -52,6 +59,8 @@ public class PrintingService {
         receipt.setFooterLine("Thank you for your purchase!");
 
         posPrinter.print(receipt, printerService);
+        return barcodeString;
+
     }
 
     private PrintService findPrintService(String printerName) {
@@ -62,6 +71,29 @@ public class PrintingService {
             }
         }
         return null;
+    }
+
+    private String generateRandomEAN13() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder(13);
+
+// Generate first 12 digits randomly
+        for (int i = 0; i < 12; i++) {
+            sb.append(random.nextInt(10));
+        }
+
+// Calculate check digit
+        int sum = 0;
+        for (int i = 0; i < 12; i++) {
+            int digit = Character.getNumericValue(sb.charAt(i));
+            sum += (i % 2 == 0) ? digit : digit * 3;
+        }
+        int checkDigit = (10 - (sum % 10)) % 10;
+
+// Append check digit
+        sb.append(checkDigit);
+
+        return sb.toString();
     }
 
     // Strategy Interface
@@ -100,17 +132,17 @@ public class PrintingService {
         }
     }
 
-    // Concrete strategy for PledgeDTO
-    private static class PledgePrintStrategy implements PrintStrategy {
-        private final PledgeDTO PledgeDTO;
+    // Concrete strategy for double value
+    private static class ValuePrintStrategy implements PrintStrategy {
+        private final double value;
 
-        PledgePrintStrategy(PledgeDTO PledgeDTO) {
-            this.PledgeDTO = PledgeDTO;
+        ValuePrintStrategy(double value) {
+            this.value = value;
         }
 
         @Override
         public void addItemsToReceipt(POSReceipt receipt) {
-            receipt.addItem("PledgeDTO: " + PledgeDTO.getBarcodeId(), PledgeDTO.getValue());
+            receipt.addItem("Value", value);
         }
     }
 

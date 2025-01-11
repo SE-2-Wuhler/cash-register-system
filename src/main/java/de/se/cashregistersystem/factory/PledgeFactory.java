@@ -2,13 +2,14 @@ package de.se.cashregistersystem.factory;
 
 import de.se.cashregistersystem.dto.PledgeDTO;
 import de.se.cashregistersystem.entity.Pledge;
+import de.se.cashregistersystem.util.POSBarcode;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PledgeFactory {
 
-    public Pledge create(PledgeDTO pledgeDTO){
-        return new Pledge(pledgeDTO.getBarcodeId(),pledgeDTO.getValue());
+    public Pledge create(String barcode_id, double value){
+        return new Pledge(barcode_id,value);
     }
 
     /**
