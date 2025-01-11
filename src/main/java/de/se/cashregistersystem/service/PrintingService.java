@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PrintingService {
@@ -40,9 +42,27 @@ public class PrintingService {
         receipt.setAddress(ADDRESS);
         receipt.setPhone(PHONE);
 
-        // Fügt Artikel zum Beleg hinzu
+        // Gruppiert Items nach Namen und summiert die Preise
         if (items != null) {
-            items.forEach(item -> receipt.addItem(item.getName(), item.getPrice()));
+            Map<String, ItemGroup> groupedItems = items.stream()
+                    .collect(Collectors.groupingBy(
+                            Item::getName,
+                            Collectors.collectingAndThen(
+                                    Collectors.toList(),
+                                    list -> new ItemGroup(
+                                            list.size(),
+                                            list.get(0).getPrice() * list.size()
+                                    )
+                            )
+                    ));
+
+            // Fügt gruppierte Items zum Beleg hinzu
+            groupedItems.forEach((name, group) -> {
+                String itemName = group.quantity > 1 ?
+                        String.format("%dx %s", group.quantity, name) :
+                        name;
+                receipt.addItem(itemName, group.totalPrice);
+            });
         }
 
         // Erstellt einen Barcode und fügt ihn dem Beleg hinzu
@@ -72,5 +92,18 @@ public class PrintingService {
             }
         }
         return null;
+    }
+
+    /**
+     * Hilfsklasse zur Gruppierung von Items
+     */
+    private static class ItemGroup {
+        final int quantity;
+        final double totalPrice;
+
+        ItemGroup(int quantity, double totalPrice) {
+            this.quantity = quantity;
+            this.totalPrice = totalPrice;
+        }
     }
 }
