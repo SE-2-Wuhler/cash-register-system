@@ -11,11 +11,16 @@ public class PledgeService {
     @Autowired
     private PledgeRepository pledgeRepository;
 
-    public Pledge createPledge( String barcodeId,double value) {
-        Pledge pledge = new Pledge();
-        pledge.setBarcodeId(barcodeId);
-        pledge.setValue(value);
-        return pledgeRepository.save(pledge);
+    public Pledge createPledge(Pledge pledge) {
+
+        //TODO: Print bon
+
+        try {
+            return pledgeRepository.save(pledge);
+        } catch (Exception e) {
+            throw new RuntimeException("Insert of pledge failed "+ e);
+        }
+
 
     }
 }
