@@ -11,13 +11,27 @@ public class ItemTransaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "transaction_id", nullable = false)
-    private TransactionRecord transactionRecord;
 
-    @ManyToOne
-    @JoinColumn(name = "itemid", nullable = false)
-    private Item item;
 
-// Getters and setters
+    @Column(name = "transaction_id", nullable = false)
+    private UUID transactionRecord;
+
+    @Column(name = "itemid", nullable = false)
+    private UUID item;
+
+    public UUID getTransactionRecord() {
+        return transactionRecord;
+    }
+
+    public void setTransactionRecord(UUID transactionRecord) {
+        this.transactionRecord = transactionRecord;
+    }
+
+    public UUID getItem() {
+        return item;
+    }
+
+    public void setItem(UUID item) {
+        this.item = item;
+    }
 }

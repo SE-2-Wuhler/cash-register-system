@@ -11,12 +11,31 @@ public class PledgeTransaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "transaction_id", nullable = false)
-    private TransactionRecord transaction;
+    @Column(name = "transaction_id", nullable = false)
+    private UUID transaction;
 
-    @ManyToOne
-    @JoinColumn(name = "pledgeid", nullable = false)
-    private Pledge pledge;
 
+
+    @Column(name = "pledgeid", nullable = false)
+    private UUID pledge;
+
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(UUID transaction) {
+        this.transaction = transaction;
+    }
+
+    public UUID getPledge() {
+        return pledge;
+    }
+
+    public void setPledge(UUID pledge) {
+        this.pledge = pledge;
+    }
 }

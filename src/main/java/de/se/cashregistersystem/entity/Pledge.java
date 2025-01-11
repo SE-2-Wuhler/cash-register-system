@@ -39,4 +39,11 @@ public class Pledge {
         return value;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public String getBarcodeId() {
+        return barcodeId;
+    }
 }
