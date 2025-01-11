@@ -16,6 +16,8 @@ public class Pledge {
     @Column(name = "barcode_id")
     private String barcodeId;
 
+
+
     @Column(name ="value")
     private double value;
 
@@ -33,5 +35,15 @@ public class Pledge {
         this.barcodeId = barcodeId;
         this.value = value;
     }
+    public double getValue() {
+        return value;
+    }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public String getBarcodeId() {
+        return barcodeId;
+    }
 }

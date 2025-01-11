@@ -5,6 +5,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,7 +15,7 @@ public class ItemDTO {
     private String id;
     private String name;
     private String barcodeId;
-    private String brandId;
+    private UUID brandId;
     private String description;
     private char nutriscore;
     private String imgUrl;
@@ -37,11 +39,11 @@ public class ItemDTO {
         this.barcodeId = barcodeId;
     }
 
-    public String getBrandId() {
+    public UUID getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(String brandId) {
+    public void setBrandId(UUID brandId) {
         this.brandId = brandId;
     }
 
@@ -104,7 +106,7 @@ public class ItemDTO {
     private String category;
 
 
-    public ItemDTO(String name, String barcodeId, String brandId, String description,
+    public ItemDTO(String name, String barcodeId, UUID brandId, String description,
                    char nutriscore, String imgUrl, double price, double pledgeValue,
                    boolean isNonScanable, String category) {
         this.name = name;
