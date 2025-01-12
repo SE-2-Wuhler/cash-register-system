@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.entity;
 
+import de.se.cashregistersystem.util.Scanable;
 import jakarta.persistence.*;
 
 import java.util.UUID;
@@ -7,7 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "pledge")
-public class Pledge {
+public class Pledge implements Scanable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -45,5 +46,10 @@ public class Pledge {
 
     public String getBarcodeId() {
         return barcodeId;
+    }
+
+    @Override
+    public boolean isPledge() {
+        return true;
     }
 }

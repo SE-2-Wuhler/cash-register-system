@@ -1,6 +1,7 @@
 package de.se.cashregistersystem.service;
 
-import de.se.cashregistersystem.dto.ItemDTO;
+
+import de.se.cashregistersystem.entity.Item;
 import de.se.cashregistersystem.util.POS;
 import de.se.cashregistersystem.util.POSPrinter;
 import de.se.cashregistersystem.util.POSReceipt;
@@ -22,7 +23,7 @@ public class PrintingService {
     private static final String ADDRESS = "Wühlallee 1";
     private static final String PHONE = "0176 12345678";
 
-    public void printReceipt(List<ItemDTO> items) {
+    public void printReceipt(List<Item> items) {
         print(new ItemListPrintStrategy(items));
     }
 
@@ -101,11 +102,11 @@ public class PrintingService {
         void addItemsToReceipt(POSReceipt receipt);
     }
 
-    // Concrete strategy for ItemDTO list
+    // Concrete strategy for Item list
     private static class ItemListPrintStrategy implements PrintStrategy {
-        private final List<ItemDTO> items;
+        private final List<Item> items;
 
-        ItemListPrintStrategy(List<ItemDTO> items) {
+        ItemListPrintStrategy(List<Item> items) {
             this.items = items;
         }
 
@@ -113,7 +114,7 @@ public class PrintingService {
         public void addItemsToReceipt(POSReceipt receipt) {
             Map<String, ItemGroup> groupedItems = items.stream()
                     .collect(Collectors.groupingBy(
-                            ItemDTO::getName,
+                            Item::getName,
                             Collectors.collectingAndThen(
                                     Collectors.toList(),
                                     list -> new ItemGroup(

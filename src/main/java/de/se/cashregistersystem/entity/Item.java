@@ -1,5 +1,7 @@
 package de.se.cashregistersystem.entity;
 
+
+import de.se.cashregistersystem.util.Scanable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "item")
-public class Item {
+public class Item implements Scanable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -20,10 +22,19 @@ public class Item {
     @Column(name = "barcode_id")
     private String barcodeId;
 
+    public UUID getBrandId() {
+        return brandId;
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
+    public void setBrandId(UUID brandId) {
+        this.brandId = brandId;
+    }
+
+    @Column(name="brand_id")
+    private UUID brandId;
+//    @ManyToOne
+//    @JoinColumn(name = "brand_id")
+//    private Brand brand;
 
 
     @Column(name = "description")
@@ -63,12 +74,12 @@ public class Item {
     public Item() {}
 
     // Constructor with all attributes
-    public Item(String name, String barcodeId, Brand brand, String description,
+    public Item(String name, String barcodeId, UUID brandId, String description,
                 char nutriscore, String imgUrl, double price, double pledgeValue,
                 boolean isNonScanable, String category) {
         this.name = name;
         this.barcodeId = barcodeId;
-        this.brand = brand;
+        this.brandId = brandId;
         this.description = description;
         this.nutriscore = nutriscore;
         this.imgUrl = imgUrl;
@@ -99,13 +110,9 @@ public class Item {
         this.barcodeId = barcodeId;
     }
 
-    public Brand getBrand() {
-        return brand;
-    }
 
-    public void setBrand(Brand brand) {
-        this.brand = brand;
-    }
+
+
 
     public String getDescription() {
         return description;
@@ -133,6 +140,11 @@ public class Item {
 
     public double getPrice() {
         return price;
+    }
+
+    @Override
+    public boolean isPledge() {
+        return false;
     }
 
     public void setPrice(double price) {
