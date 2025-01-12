@@ -28,7 +28,7 @@ public class PledgeMachineController {
     private PledgeService service;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createPledge(@RequestBody ItemWithQuantityDTO[] itemWithQuantityDTO) {
+    public ResponseEntity<UUID> createPledge(@RequestBody ItemWithQuantityDTO[] itemWithQuantityDTO) {
         logger.debug("Attempting to create pledge with {} items", itemWithQuantityDTO.length);
 
         if (itemWithQuantityDTO.length == 0) {
@@ -43,7 +43,7 @@ public class PledgeMachineController {
             UUID id = service.createPledge(itemWithQuantityDTO);
             logger.info("Successfully created pledge with ID: {}", id);
             return new ResponseEntity<>(
-                    "Pledge has been created.",
+                    id,
                     HttpStatus.CREATED
             );
 

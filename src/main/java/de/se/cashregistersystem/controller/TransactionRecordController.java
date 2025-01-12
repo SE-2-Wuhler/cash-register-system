@@ -48,13 +48,13 @@ public class TransactionRecordController {
     private ItemRepository itemRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<UUID> create(@RequestBody TransactionRequestDTO requestDTO){
+    public ResponseEntity<Object> create(@RequestBody TransactionRequestDTO requestDTO){
         try{
             UUID transactionRecord = service.createTransactionRecord(requestDTO.getItems(), requestDTO.getPledges());
             if(transactionRecord == null){
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create new Transaction";
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create new Transaction");
             }
-            return new ResponseEntity<UUID>(transactionRecord, HttpStatus.CREATED);
+            return new ResponseEntity<>(transactionRecord, HttpStatus.CREATED);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create new Transaction " + e.getMessage());
         }

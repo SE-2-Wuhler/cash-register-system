@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 
 public interface ItemRepository extends JpaRepository<Item, UUID> {
@@ -14,4 +15,6 @@ public interface ItemRepository extends JpaRepository<Item, UUID> {
     List<Item> findItemsWithPositivePledgeValue();
 
     Optional<Item> findItemByBarcodeId(String barcode_id);
+
+    Optional<List<Item>> findAllByIsNonScanableTrue();
 }
