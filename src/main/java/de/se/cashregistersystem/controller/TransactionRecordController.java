@@ -14,16 +14,10 @@ import de.se.cashregistersystem.service.TransactionRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/transaction")
@@ -47,6 +41,14 @@ public class TransactionRecordController {
     @Autowired
     private ItemRepository itemRepository;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionRecord> getTransactionById(@PathVariable UUID id){
+        Optional<TransactionRecord> transaction = transactionRecordRepository.findById(id);
+        if (!transaction.isPresent()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found.");
+        }
+        return new ResponseEntity<>(transaction.get(), HttpStatus.OK);
+    }
     @PostMapping("/create")
     public ResponseEntity<Object> create(@RequestBody TransactionRequestDTO requestDTO){
         try{
