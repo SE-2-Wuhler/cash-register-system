@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -37,14 +38,12 @@ public class PledgeMachineController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<Item>> getAll(){
-//        try {
-
-
+    public ResponseEntity<?> getAll(){
+        try {
             return new ResponseEntity<List<Item>>(service.getAllPledgeItems(), HttpStatus.OK);
-//        } catch (Exception e){
-//            return new ResponseEntity<String>("Failed to get All", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
+        } catch (Exception e){
+            return new ResponseEntity<String>("Failed to load Pledge Items", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
