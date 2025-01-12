@@ -44,6 +44,7 @@ public class ItemFactory {
                 Item currentItem = item.get();
                 if (currentItem.getPrice() != price) {
                     currentItem.setPrice(price);
+
                     return itemRepository.save(currentItem);
                 }
                 return currentItem;

@@ -13,14 +13,13 @@ public class Pledge implements Scanable {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
     @Column(name = "barcode_id")
     private String barcodeId;
-
-
-
     @Column(name ="value")
     private double value;
+
+    @Column(name ="validated")
+    private boolean validated;
 
     public Pledge(){}
 
@@ -46,6 +45,13 @@ public class Pledge implements Scanable {
 
     public String getBarcodeId() {
         return barcodeId;
+    }
+
+    public boolean isValidated() {
+        return validated;
+    }
+    public void setValidated(boolean validated) {
+        this.validated = validated;
     }
 
     @Override
