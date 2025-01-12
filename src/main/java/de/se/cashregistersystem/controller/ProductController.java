@@ -11,6 +11,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/product")
@@ -21,34 +22,45 @@ public class ProductController {
     private ItemRepository itemRepository;
     @Autowired
     ItemFactory itemFactory;
-    @GetMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<String> create(@RequestBody CreateProductDTO request) {
-
         try {
+            if (request.getBarcodeId() == null || request.getBarcodeId().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode ID is required");
+            }
+
             JSONObject foodFacts = foodService.getProductByBarcode(request.getBarcodeId());
 
-            // Extrahieren der brand_id (in diesem Fall nehmen wir einfach den Markennamen)
-            String brandName = foodFacts.getString("brands");
-            String productName = foodFacts.getString("product_name");
-            // Bestimmen der Art des Produkts
-            String categories = foodFacts.getString("categories");
-            boolean fluid = false;
-            String containerType = "Unbekannt";
+            if (foodFacts == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found for the given barcode");
+            }
 
+            String brandName = foodFacts.optString("brands", "");
+            String productName = foodFacts.optString("product_name", "");
+            String categories = foodFacts.optString("categories", "");
+            boolean fluid = categories.toLowerCase().contains("getränke");
             if (categories.toLowerCase().contains("getränke")) {
                 fluid = true;
                 return new ResponseEntity<String>(HttpStatus.OK);
-
-
             }
-            itemRepository.save(itemFactory.create(cleanString(productName),cleanString(request.getBarcodeId()), cleanString(brandName),fluid, request.getPrice(), cleanString(categories)));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+
+            itemRepository.save(itemFactory.create(
+                    cleanString(productName),
+                    cleanString(request.getBarcodeId()),
+                    cleanString(brandName),
+                    fluid,
+                    request.getPrice(),
+                    cleanString(categories)
+            ));
+
+            return new ResponseEntity<String>("Product has been created", HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", e);
         }
-        return new ResponseEntity<>("Product has been created",HttpStatus.CREATED);
     }
+
     private String cleanString(String input) {
-        if (input == null) return null;
-        return input.replaceAll("\u0000", "");
+        return input == null ? null : input.replaceAll("\u0000", "");
     }
 }
