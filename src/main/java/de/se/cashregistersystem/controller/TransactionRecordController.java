@@ -1,6 +1,5 @@
 package de.se.cashregistersystem.controller;
 
-import de.se.cashregistersystem.dto.ItemDTO;
 import de.se.cashregistersystem.dto.ItemWithQuantityDTO;
 import de.se.cashregistersystem.dto.TransactionRequestDTO;
 import de.se.cashregistersystem.entity.Item;
@@ -48,10 +47,16 @@ public class TransactionRecordController {
     private ItemRepository itemRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<UUID> create(@RequestBody TransactionRequestDTO requestDTO){
-
-        UUID transactionRecord = service.createTransactionRecord(requestDTO.getItems(),requestDTO.getPledges());
-        return new ResponseEntity<UUID>(transactionRecord , HttpStatus.CREATED);
+    public ResponseEntity<?> create(@RequestBody TransactionRequestDTO requestDTO){
+        try{
+            UUID transactionRecord = service.createTransactionRecord(requestDTO.getItems(), requestDTO.getPledges());
+            if(transactionRecord == null){
+                return new ResponseEntity<String>("Failed to create new Transaction", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<UUID>(transactionRecord, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<String>("Failed to Create new Transaction " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @PostMapping("/complete")
     public ResponseEntity<String> completeTransaction(@RequestBody String orderId){
