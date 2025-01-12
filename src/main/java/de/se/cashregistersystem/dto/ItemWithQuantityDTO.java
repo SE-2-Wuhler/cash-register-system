@@ -19,5 +19,6 @@ public class ItemWithQuantityDTO {
     public ItemWithQuantityDTO(int quantity) {
         this.quantity = quantity;
     }
+
 }
 
