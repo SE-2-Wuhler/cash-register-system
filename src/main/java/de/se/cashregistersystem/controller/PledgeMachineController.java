@@ -4,6 +4,7 @@ package de.se.cashregistersystem.controller;
 
 import de.se.cashregistersystem.dto.ItemWithQuantityDTO;
 import de.se.cashregistersystem.dto.PledgeDTO;
+import de.se.cashregistersystem.entity.Item;
 import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.repository.PledgeRepository;
 import de.se.cashregistersystem.service.PledgeService;
@@ -14,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/pledge")
@@ -35,8 +38,17 @@ public class PledgeMachineController {
             System.out.println(e);
             return new ResponseEntity<String>("Failed to create Pledge", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getAll(){
+        try {
+            return new ResponseEntity<List<Item>>(service.getAllPledgeItems(), HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<String>("Failed to load Pledge Items", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 
