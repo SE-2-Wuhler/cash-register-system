@@ -48,15 +48,15 @@ public class TransactionRecordController {
     private ItemRepository itemRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody TransactionRequestDTO requestDTO){
+    public ResponseEntity<UUID> create(@RequestBody TransactionRequestDTO requestDTO){
         try{
             UUID transactionRecord = service.createTransactionRecord(requestDTO.getItems(), requestDTO.getPledges());
             if(transactionRecord == null){
-                return new ResponseEntity<String>("Failed to create new Transaction", HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create new Transaction";
             }
-            return new ResponseEntity<String>("Created new Transaction Record: " + transactionRecord, HttpStatus.CREATED);
+            return new ResponseEntity<UUID>(transactionRecord, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<String>("Failed to Create new Transaction " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create new Transaction " + e.getMessage());
         }
     }
     @PostMapping("/complete")
@@ -93,7 +93,7 @@ public class TransactionRecordController {
             // Print receipt
             printingService.printReceipt(items);
 
-            return new ResponseEntity<String>(HttpStatus.OK);
+            return new ResponseEntity<String>("Transaction completed", HttpStatus.OK);
 
         } catch (ResponseStatusException e) {
             throw e;

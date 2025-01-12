@@ -1,6 +1,7 @@
 package de.se.cashregistersystem.controller;
 
 import de.se.cashregistersystem.dto.CreateProductDTO;
+import de.se.cashregistersystem.entity.Item;
 import de.se.cashregistersystem.factory.ItemFactory;
 import de.se.cashregistersystem.repository.ItemRepository;
 import de.se.cashregistersystem.service.OpenFoodFactsService;
@@ -23,7 +24,7 @@ public class ProductController {
     @Autowired
     ItemFactory itemFactory;
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody CreateProductDTO request) {
+    public ResponseEntity<Item> create(@RequestBody CreateProductDTO request) {
         try {
             if (request.getBarcodeId() == null || request.getBarcodeId().isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode ID is required");
@@ -39,12 +40,9 @@ public class ProductController {
             String productName = foodFacts.optString("product_name", "");
             String categories = foodFacts.optString("categories", "");
             boolean fluid = categories.toLowerCase().contains("getränke");
-            if (categories.toLowerCase().contains("getränke")) {
-                fluid = true;
-                return new ResponseEntity<String>(HttpStatus.OK);
-            }
 
-            itemRepository.save(itemFactory.create(
+
+            Item item = itemRepository.save(itemFactory.create(
                     cleanString(productName),
                     cleanString(request.getBarcodeId()),
                     cleanString(brandName),
@@ -53,7 +51,9 @@ public class ProductController {
                     cleanString(categories)
             ));
 
-            return new ResponseEntity<String>("Product has been created", HttpStatus.CREATED);
+            System.out.println(item.toString());
+
+            return new ResponseEntity<Item>(item, HttpStatus.CREATED);
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", e);
