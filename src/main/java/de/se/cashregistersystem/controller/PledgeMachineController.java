@@ -31,7 +31,7 @@ public class PledgeMachineController {
     public ResponseEntity<String> createPledge(@RequestBody ItemWithQuantityDTO[] itemWithQuantityDTO) {
         logger.debug("Attempting to create pledge with {} items", itemWithQuantityDTO.length);
 
-        if (itemWithQuantityDTO == null || itemWithQuantityDTO.length == 0) {
+        if (itemWithQuantityDTO.length == 0) {
             logger.error("Received empty or null item array for pledge creation");
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -43,7 +43,7 @@ public class PledgeMachineController {
             UUID id = service.createPledge(itemWithQuantityDTO);
             logger.info("Successfully created pledge with ID: {}", id);
             return new ResponseEntity<>(
-                    String.format("Pledge %s has been created.", id.toString()),
+                    "Pledge has been created.",
                     HttpStatus.CREATED
             );
 

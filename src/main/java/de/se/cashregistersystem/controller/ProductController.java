@@ -42,7 +42,7 @@ public class ProductController {
             boolean fluid = categories.toLowerCase().contains("getränke");
 
 
-         Item item = itemRepository.save(itemFactory.create(
+            Item item = itemRepository.save(itemFactory.create(
                     cleanString(productName),
                     cleanString(request.getBarcodeId()),
                     cleanString(brandName),
