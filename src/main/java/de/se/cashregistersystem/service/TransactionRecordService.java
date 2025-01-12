@@ -83,8 +83,10 @@ public class TransactionRecordService {
             for (UUID pledgeId : pledges) {
                 Pledge currPledge = pledgeRepository.findById(pledgeId)
                         .orElseThrow(() -> new IllegalArgumentException("Invalid PledgeID: " + pledgeId));
+                currPledge.setValidated(true);
+                Pledge actPledge = pledgeRepository.save(currPledge);
 
-                allPledges.add(currPledge);
+                allPledges.add(actPledge);
                 totalAmount = totalAmount.subtract(BigDecimal.valueOf(currPledge.getValue()));
             }
         }
