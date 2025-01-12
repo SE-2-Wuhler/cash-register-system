@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.controller;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import de.se.cashregistersystem.dto.ItemWithQuantityDTO;
 import de.se.cashregistersystem.dto.TransactionRequestDTO;
 import de.se.cashregistersystem.entity.Item;
@@ -62,7 +63,13 @@ public class TransactionRecordController {
         }
     }
     @PostMapping("/complete")
-    public ResponseEntity<String> completeTransaction(@RequestBody String orderId) {
+    public ResponseEntity<UUID> completeTransaction(@RequestBody  Map<String,String> body) {
+        String orderId = body.get("orderId");
+        String currentTransactionId = body.get("transactionId");
+
+
+
+
         if (orderId == null || orderId.trim().isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -95,7 +102,7 @@ public class TransactionRecordController {
             // Print receipt
             printingService.printReceipt(items);
 
-            return new ResponseEntity<String>("Transaction completed", HttpStatus.OK);
+            return new ResponseEntity<>(transactionId, HttpStatus.OK);
 
         } catch (ResponseStatusException e) {
             throw e;

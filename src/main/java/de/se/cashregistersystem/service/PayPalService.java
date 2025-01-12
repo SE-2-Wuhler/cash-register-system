@@ -88,12 +88,7 @@ public class PayPalService {
                     "Status field missing in PayPal response"
             );
         }
-        if (!status.equals("COMPLETED")) {
-            throw new ResponseStatusException(
-                    HttpStatus.PAYMENT_REQUIRED,
-                    "Payment incomplete. Order status is " + status
-            );
-        }
+
 
         @SuppressWarnings("unchecked")
         List<HashMap<String, String>> purchaseUnits = (List<HashMap<String, String>>) body.get("purchase_units");
@@ -123,6 +118,13 @@ public class PayPalService {
 
             record.setStatus("paid");
             transactionRecordRepository.save(record);
+            if (!status.equals("COMPLETED")) {
+                throw new ResponseStatusException(
+                        HttpStatus.PAYMENT_REQUIRED,
+                        "Payment incomplete. Order status is " + status
+                );
+            }
+
             return transactionUUID;
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(
