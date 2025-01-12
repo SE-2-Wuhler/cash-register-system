@@ -14,16 +14,11 @@ import de.se.cashregistersystem.service.TransactionRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import javax.swing.text.html.Option;
+import java.util.*;
 
 @RestController
 @RequestMapping("/transaction")
@@ -52,7 +47,7 @@ public class TransactionRecordController {
         try{
             UUID transactionRecord = service.createTransactionRecord(requestDTO.getItems(), requestDTO.getPledges());
             if(transactionRecord == null){
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create new Transaction";
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create new Transaction");
             }
             return new ResponseEntity<UUID>(transactionRecord, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -90,9 +85,15 @@ public class TransactionRecordController {
                 );
             }
 
+            Optional<TransactionRecord> transactionRecord = transactionRecordRepository.findById(transactionId);
+            if(!transactionRecord.isPresent()) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TransactionID not valid: " + transactionId);
+            }
+            TransactionRecord record = transactionRecord.get();
             // Print receipt
-            printingService.printReceipt(items);
-
+            String barcode = printingService.printReceipt(items);
+            record.setBarcodeId(barcode);
+            transactionRecordRepository.save(record);
             return new ResponseEntity<String>("Transaction completed", HttpStatus.OK);
 
         } catch (ResponseStatusException e) {
@@ -103,5 +104,16 @@ public class TransactionRecordController {
                     "Failed to complete transaction: " + e.getMessage()
             );
         }
+    }
+    @PostMapping("/scan/{barcode_id}")
+    public ResponseEntity<Object> scanTransaction(@PathVariable String barcode_id){
+        Optional<TransactionRecord> transactionRecord = transactionRecordRepository.findPaidTransactionRecord(barcode_id);
+        if(!transactionRecord.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No paid Transaction Record");
+        }
+        TransactionRecord record = transactionRecord.get();
+        record.setStatus("scanned");
+        transactionRecordRepository.save(record);
+        return new ResponseEntity<>("Transaction successfully scanned", HttpStatus.OK);
     }
 }

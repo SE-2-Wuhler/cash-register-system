@@ -24,14 +24,14 @@ public class PrintingService {
     private static final String ADDRESS = "Wühlallee 1";
     private static final String PHONE = "0176 12345678";
 
-    public void printReceipt(List<Item> items) {
+    public String printReceipt(List<Item> items) {
         if (items == null || items.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Cannot print receipt: Item list is empty or null"
             );
         }
-        print(new ItemListPrintStrategy(items));
+        return print(new ItemListPrintStrategy(items));
     }
 
     public String printValueReceipt(double value) {
