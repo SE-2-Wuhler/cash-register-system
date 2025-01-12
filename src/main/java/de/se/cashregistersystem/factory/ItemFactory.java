@@ -42,10 +42,7 @@ public class ItemFactory {
             Optional<Item> item = itemRepository.findItemByBarcodeId(barcodeId);
             if (item.isPresent()) {
                 Item currentItem = item.get();
-                if (currentItem.getPrice() != price) {
-                    currentItem.setPrice(price);
-                    return itemRepository.save(currentItem);
-                }
+                currentItem.setPrice(price);
                 return currentItem;
             }
 
