@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 @RestController
@@ -42,14 +41,22 @@ public class TransactionRecordController {
     @Autowired
     private ItemRepository itemRepository;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionRecord> getTransactionById(@PathVariable UUID id){
+        Optional<TransactionRecord> transaction = transactionRecordRepository.findById(id);
+        if (!transaction.isPresent()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found.");
+        }
+        return new ResponseEntity<>(transaction.get(), HttpStatus.OK);
+    }
     @PostMapping("/create")
-    public ResponseEntity<UUID> create(@RequestBody TransactionRequestDTO requestDTO){
+    public ResponseEntity<Object> create(@RequestBody TransactionRequestDTO requestDTO){
         try{
             UUID transactionRecord = service.createTransactionRecord(requestDTO.getItems(), requestDTO.getPledges());
             if(transactionRecord == null){
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create new Transaction");
             }
-            return new ResponseEntity<UUID>(transactionRecord, HttpStatus.CREATED);
+            return new ResponseEntity<>(transactionRecord, HttpStatus.CREATED);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create new Transaction " + e.getMessage());
         }
