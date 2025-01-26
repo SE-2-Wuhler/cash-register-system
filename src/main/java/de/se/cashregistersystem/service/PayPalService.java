@@ -66,7 +66,7 @@ public class PayPalService {
             }
         } catch (HttpClientErrorException e) {
             throw new ResponseStatusException(
-                    e.getStatusCode(),
+                    HttpStatus.BAD_REQUEST,
                     "Client error when calling PayPal API: " + e.getStatusText()
             );
         } catch (HttpServerErrorException e) {

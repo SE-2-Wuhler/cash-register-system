@@ -57,7 +57,13 @@ public class TransactionRecordController {
         }
     }
     @PostMapping("/complete")
-    public ResponseEntity<String> completeTransaction(@RequestBody String orderId) {
+    public ResponseEntity<UUID> completeTransaction(@RequestBody  Map<String,String> body) {
+        String orderId = body.get("orderId");
+        String currentTransactionId = body.get("transactionId");
+
+
+
+
         if (orderId == null || orderId.trim().isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
