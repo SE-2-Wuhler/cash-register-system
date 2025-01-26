@@ -1,8 +1,6 @@
 package de.se.cashregistersystem.service;
 
-import de.se.cashregistersystem.dto.ItemDTO;
-import de.se.cashregistersystem.dto.ItemWithQuantityDTO;
-import de.se.cashregistersystem.dto.PledgeDTO;
+import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
 import de.se.cashregistersystem.entity.*;
 import de.se.cashregistersystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,28 +19,25 @@ public class TransactionRecordService {
     private TransactionRecordRepository transactionRecordRepository;
 
     @Autowired
-    private ItemTransactionRepository itemTransactionRepository;
+    private ProductTransactionRepository productTransactionRepository;
 
     @Autowired
-    private PledgeTransactionRepository pledgeTransactionRepository;
-
-    @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
 
     @Autowired
     private PledgeRepository pledgeRepository;
 
-    public UUID createTransactionRecord(ItemWithQuantityDTO[] items, UUID[] pledges) {
-        List<Item> allItems = new ArrayList<>();
+    public UUID createTransactionRecord(ProductWithQuantityDTO[] items, UUID[] pledges) {
+        List<Product> allProducts = new ArrayList<>();
         List<Pledge> allPledges = new ArrayList<>();
 
         try {
             validateInput(items, pledges);
-            BigDecimal itemAmount = processItems(items, allItems);
+            BigDecimal itemAmount = processItems(items, allProducts);
             BigDecimal pledgeAmount = processPledges(pledges, allPledges);
 
             TransactionRecord transactionRecord = createAndSaveTransactionRecord(itemAmount.subtract(pledgeAmount));
-            saveItemTransactions(transactionRecord, allItems);
+            saveItemTransactions(transactionRecord, allProducts);
             savePledgeTransactions(transactionRecord, allPledges);
 
             return transactionRecord.getId();
@@ -52,25 +46,25 @@ public class TransactionRecordService {
         }
     }
 
-    private void validateInput(ItemWithQuantityDTO[] items, UUID[] pledges) {
+    private void validateInput(ProductWithQuantityDTO[] items, UUID[] pledges) {
         if ((items == null || items.length == 0) && (pledges == null || pledges.length == 0)) {
             throw new IllegalArgumentException("At least one item or pledge must be specified.");
         }
     }
 
-    private BigDecimal processItems(ItemWithQuantityDTO[] items, List<Item> allItems) {
+    private BigDecimal processItems(ProductWithQuantityDTO[] items, List<Product> allProducts) {
         BigDecimal totalAmount = BigDecimal.ZERO;
         if (items != null) {
-            for (ItemWithQuantityDTO item : items) {
-                Item currItem = itemRepository.findById(item.getItemId())
+            for (ProductWithQuantityDTO item : items) {
+                Product currProduct = productRepository.findById(item.getItemId())
                         .orElseThrow(() -> new IllegalArgumentException("Invalid ItemID: " + item.getItemId()));
 
                 if (item.getQuantity() <= 0) {
                     throw new IllegalArgumentException("Invalid quantity for Item: " + item.getItemId());
                 }
 
-                allItems.add(currItem);
-                double itemPrice = (currItem.getPrice() * item.getQuantity()) + (currItem.getPledgeValue() * item.getQuantity());
+                allProducts.add(currProduct);
+                double itemPrice = (currProduct.getPrice() * item.getQuantity()) + (currProduct.getPledgeValue() * item.getQuantity());
                 totalAmount = totalAmount.add(BigDecimal.valueOf(itemPrice));
             }
         }
@@ -100,12 +94,12 @@ public class TransactionRecordService {
         return transactionRecordRepository.save(transactionRecord);
     }
 
-    private void saveItemTransactions(TransactionRecord transactionRecord, List<Item> allItems) {
-        for (Item item : allItems) {
-            ItemTransaction itemTransaction = new ItemTransaction();
-            itemTransaction.setTransactionRecord(transactionRecord.getId());
-            itemTransaction.setItem(item.getId());
-            itemTransactionRepository.save(itemTransaction);
+    private void saveItemTransactions(TransactionRecord transactionRecord, List<Product> allProducts) {
+        for (Product product : allProducts) {
+            ProductTransaction productTransaction = new ProductTransaction();
+            productTransaction.setTransactionRecord(transactionRecord.getId());
+            productTransaction.setItem(product.getId());
+            productTransactionRepository.save(productTransaction);
         }
     }
 

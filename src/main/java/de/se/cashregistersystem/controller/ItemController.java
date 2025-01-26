@@ -1,11 +1,10 @@
 package de.se.cashregistersystem.controller;
 
-import de.se.cashregistersystem.entity.Item;
+import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.entity.Pledge;
-import de.se.cashregistersystem.repository.ItemRepository;
+import de.se.cashregistersystem.repository.ProductRepository;
 import de.se.cashregistersystem.repository.PledgeRepository;
 import de.se.cashregistersystem.util.Scanable;
-import org.antlr.v4.runtime.InterpreterRuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +25,7 @@ public class ItemController {
     private static final Logger logger = LoggerFactory.getLogger(ItemController.class);
 
     @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
     @Autowired
     private PledgeRepository pledgeRepository;
     @GetMapping("/{barcode_id}")
@@ -44,7 +43,7 @@ public class ItemController {
 
         try {
             // Try to find item
-            Optional<Item> item = itemRepository.findItemByBarcodeId(barcodeId);
+            Optional<Product> item = productRepository.findItemByBarcodeId(barcodeId);
             if (item.isPresent()) {
                 logger.debug("Found item for barcode: {}", barcodeId);
                 return new ResponseEntity<>(item.get(), HttpStatus.OK);
@@ -79,8 +78,8 @@ public class ItemController {
         }
     }
     @GetMapping("/notscanables")
-    public ResponseEntity<List<Item>> getById() {
-        Optional<List<Item>> items = itemRepository.findAllByIsNonScanableTrue();
+    public ResponseEntity<List<Product>> getById() {
+        Optional<List<Product>> items = productRepository.findAllByIsNonScanableTrue();
         if(!items.isPresent()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Did not find nonscanable items");
         }

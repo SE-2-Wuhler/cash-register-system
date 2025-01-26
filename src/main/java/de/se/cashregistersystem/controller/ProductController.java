@@ -1,13 +1,12 @@
 package de.se.cashregistersystem.controller;
 
 import de.se.cashregistersystem.dto.CreateProductDTO;
-import de.se.cashregistersystem.entity.Item;
+import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.factory.ItemFactory;
-import de.se.cashregistersystem.repository.ItemRepository;
+import de.se.cashregistersystem.repository.ProductRepository;
 import de.se.cashregistersystem.service.OpenFoodFactsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +19,11 @@ public class ProductController {
     @Autowired
     private OpenFoodFactsService foodService;
     @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
     @Autowired
     ItemFactory itemFactory;
     @PostMapping("/create")
-    public ResponseEntity<Item> create(@RequestBody CreateProductDTO request) {
+    public ResponseEntity<Product> create(@RequestBody CreateProductDTO request) {
         try {
             if (request.getBarcodeId() == null || request.getBarcodeId().isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode ID is required");
@@ -42,7 +41,7 @@ public class ProductController {
             boolean fluid = categories.toLowerCase().contains("getränke");
 
 
-            Item item = itemRepository.save(itemFactory.create(
+            Product product = productRepository.save(itemFactory.create(
                     cleanString(productName),
                     cleanString(request.getBarcodeId()),
                     cleanString(brandName),
@@ -51,9 +50,9 @@ public class ProductController {
                     cleanString(categories)
             ));
 
-            System.out.println(item.toString());
+            System.out.println(product.toString());
 
-            return new ResponseEntity<Item>(item, HttpStatus.CREATED);
+            return new ResponseEntity<Product>(product, HttpStatus.CREATED);
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", e);

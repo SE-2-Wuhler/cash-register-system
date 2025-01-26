@@ -1,14 +1,10 @@
 package de.se.cashregistersystem.factory;
 
-import de.se.cashregistersystem.dto.ItemDTO;
-import de.se.cashregistersystem.dto.PledgeDTO;
 import de.se.cashregistersystem.entity.Brand;
-import de.se.cashregistersystem.entity.Item;
-import de.se.cashregistersystem.entity.Pledge;
+import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.repository.BrandRepository;
-import de.se.cashregistersystem.repository.ItemRepository;
+import de.se.cashregistersystem.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,9 +17,9 @@ public class ItemFactory {
     @Autowired
     BrandRepository brandRepository;
     @Autowired
-    ItemRepository itemRepository;
+    ProductRepository productRepository;
 
-    public Item create(String name, String barcodeId, String brandName, boolean fluid, double price, String category) {
+    public Product create(String name, String barcodeId, String brandName, boolean fluid, double price, String category) {
         // Validate input parameters
         if (name == null || name.trim().isEmpty()) {
             throw new ResponseStatusException(
@@ -39,19 +35,19 @@ public class ItemFactory {
         }
         try {
             // Check for existing item
-            Optional<Item> item = itemRepository.findItemByBarcodeId(barcodeId);
+            Optional<Product> item = productRepository.findItemByBarcodeId(barcodeId);
             if (item.isPresent()) {
-                Item currentItem = item.get();
-                currentItem.setPrice(price);
-                return currentItem;
+                Product currentProduct = item.get();
+                currentProduct.setPrice(price);
+                return currentProduct;
             }
 
             // Create new item
-            Item itemToSave = new Item();
-            itemToSave.setName(name);
-            itemToSave.setBarcodeId(barcodeId);
-            itemToSave.setCategory(category);
-            itemToSave.setPrice(price);
+            Product productToSave = new Product();
+            productToSave.setName(name);
+            productToSave.setBarcodeId(barcodeId);
+            productToSave.setCategory(category);
+            productToSave.setPrice(price);
 
             // Handle brand
             Optional<Brand> existingBrand = brandRepository.findBrandByName(brandName);
@@ -69,19 +65,19 @@ public class ItemFactory {
                 brand = existingBrand.get();
             }
 
-            itemToSave.setBrandId(brand.getId());
+            productToSave.setBrandId(brand.getId());
 
             // Set pledge value for fluid items
             if (fluid) {
-                itemToSave.setPledgeValue(0.25);
+                productToSave.setPledgeValue(0.25);
             }
 
             // Set default nutriscore
-            itemToSave.setNutriscore('a');
+            productToSave.setNutriscore('a');
 
             // Save and return the new item
             try {
-                return itemRepository.save(itemToSave);
+                return productRepository.save(productToSave);
             } catch (Exception e) {
                 throw new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,

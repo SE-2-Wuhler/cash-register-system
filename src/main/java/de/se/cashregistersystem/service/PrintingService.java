@@ -1,6 +1,7 @@
 package de.se.cashregistersystem.service;
 
-import de.se.cashregistersystem.entity.Item;
+import de.se.cashregistersystem.entity.Pledge;
+import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.util.POS;
 import de.se.cashregistersystem.util.POSPrinter;
 import de.se.cashregistersystem.util.POSReceipt;
@@ -20,28 +21,24 @@ import java.util.stream.Collectors;
 public class PrintingService {
 
     private static final String PRINTER_NAME = "Printer";
-    private static final String TITLE = "Wühlmarkt";
-    private static final String ADDRESS = "Wühlallee 1";
+    private static final String TITLE = "Wuehlmarkt";
+    private static final String ADDRESS = "Wuehlallee 1";
     private static final String PHONE = "0176 12345678";
 
-    public void printReceipt(List<Item> items) {
-        if (items == null || items.isEmpty()) {
+    public void printReceipt(List<Product> products) {
+        if (products == null || products.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Cannot print receipt: Item list is empty or null"
             );
         }
-        print(new ItemListPrintStrategy(items));
+        print(new ItemListPrintStrategy(products));
     }
 
-    public String printValueReceipt(double value) {
-        if (value <= 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Cannot print receipt: Value must be greater than 0"
-            );
-        }
-        return print(new ValuePrintStrategy(value));
+    public String printPledgeReceipt(Pledge pledge) {
+
+
+        return print(new PledgePrintStrategy(pledge));
     }
 
     private String print(PrintStrategy strategy) {
@@ -158,17 +155,17 @@ public class PrintingService {
 
     // Concrete strategy for Item list
     private static class ItemListPrintStrategy implements PrintStrategy {
-        private final List<Item> items;
+        private final List<Product> products;
 
-        ItemListPrintStrategy(List<Item> items) {
-            this.items = items;
+        ItemListPrintStrategy(List<Product> products) {
+            this.products = products;
         }
 
         @Override
         public void addItemsToReceipt(POSReceipt receipt) {
-            Map<String, ItemGroup> groupedItems = items.stream()
+            Map<String, ItemGroup> groupedItems = products.stream()
                     .collect(Collectors.groupingBy(
-                            Item::getName,
+                            Product::getName,
                             Collectors.collectingAndThen(
                                     Collectors.toList(),
                                     list -> new ItemGroup(
@@ -188,16 +185,16 @@ public class PrintingService {
     }
 
     // Concrete strategy for double value
-    private static class ValuePrintStrategy implements PrintStrategy {
-        private final double value;
+    private static class PledgePrintStrategy implements PrintStrategy {
+        private final Pledge pledge;
 
-        ValuePrintStrategy(double value) {
-            this.value = value;
+        PledgePrintStrategy(Pledge pledge) {
+            this.pledge = pledge;
         }
 
         @Override
         public void addItemsToReceipt(POSReceipt receipt) {
-            receipt.addItem("Value", value);
+            receipt.addItem("Pledge Value", pledge.getValue());
         }
     }
 

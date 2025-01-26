@@ -40,16 +40,6 @@ public class OpenFoodFactsService {
             }
 
             JSONObject fullResponse = new JSONObject(jsonResponse);
-
-//            // Check if product was found
-//            int status = fullResponse.optInt("status", 0);
-//            if (status == 0) {
-//                throw new ResponseStatusException(
-//                        HttpStatus.NOT_FOUND,
-//                        "Product not found for barcode: " + barcode
-//                );
-//            }
-
             JSONObject product = fullResponse.optJSONObject("product");
             if (product == null) {
                 throw new ResponseStatusException(
@@ -62,7 +52,7 @@ public class OpenFoodFactsService {
 
         } catch (HttpClientErrorException e) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
+                    e.getStatusCode(),
                     "Error fetching product data: " + e.getStatusText()
             );
         } catch (HttpServerErrorException e) {
@@ -77,7 +67,7 @@ public class OpenFoodFactsService {
             );
         } catch (RestClientException e) {
             throw new ResponseStatusException(
-                    HttpStatus.SERVICE_UNAVAILABLE,
+                    HttpStatus.GATEWAY_TIMEOUT,
                     "Unable to connect to OpenFoodFacts API: " + e.getMessage()
             );
         }

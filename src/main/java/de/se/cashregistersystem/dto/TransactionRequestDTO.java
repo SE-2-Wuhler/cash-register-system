@@ -4,15 +4,15 @@ import java.util.UUID;
 
 public class TransactionRequestDTO {
 
-        protected ItemWithQuantityDTO[] items;
+        protected ProductWithQuantityDTO[] items;
         protected UUID[] pledges;
 
 
-    public ItemWithQuantityDTO[] getItems() {
+    public ProductWithQuantityDTO[] getItems() {
         return items;
     }
 
-    public void setItems(ItemWithQuantityDTO[] items) {
+    public void setItems(ProductWithQuantityDTO[] items) {
         this.items = items;
     }
 

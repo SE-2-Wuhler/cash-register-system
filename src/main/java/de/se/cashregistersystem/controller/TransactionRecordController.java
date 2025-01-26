@@ -1,12 +1,10 @@
 package de.se.cashregistersystem.controller;
 
-import de.se.cashregistersystem.dto.ItemWithQuantityDTO;
 import de.se.cashregistersystem.dto.TransactionRequestDTO;
-import de.se.cashregistersystem.entity.Item;
+import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.entity.TransactionRecord;
-import de.se.cashregistersystem.repository.ItemRepository;
-import de.se.cashregistersystem.repository.ItemTransactionRepository;
-import de.se.cashregistersystem.repository.PledgeTransactionRepository;
+import de.se.cashregistersystem.repository.ProductRepository;
+import de.se.cashregistersystem.repository.ProductTransactionRepository;
 import de.se.cashregistersystem.repository.TransactionRecordRepository;
 import de.se.cashregistersystem.service.PayPalService;
 import de.se.cashregistersystem.service.PrintingService;
@@ -27,10 +25,7 @@ public class TransactionRecordController {
     private TransactionRecordRepository transactionRecordRepository;
 
     @Autowired
-    private ItemTransactionRepository itemTransactionRepository;
-
-    @Autowired
-    private PledgeTransactionRepository pledgeTransactionRepository;
+    private ProductTransactionRepository productTransactionRepository;
 
     @Autowired
     private TransactionRecordService service;
@@ -39,7 +34,7 @@ public class TransactionRecordController {
     @Autowired
     private PrintingService printingService;
     @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
 
     @GetMapping("/{id}")
     public ResponseEntity<TransactionRecord> getTransactionById(@PathVariable UUID id){
@@ -75,7 +70,7 @@ public class TransactionRecordController {
             UUID transactionId = payPalService.verifyPayment(orderId);
 
             // Get items for transaction
-            List<UUID> ids = itemTransactionRepository.getItemsByTransactionId(transactionId);
+            List<UUID> ids = productTransactionRepository.getItemsByTransactionId(transactionId);
             if (ids == null || ids.isEmpty()) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -84,8 +79,8 @@ public class TransactionRecordController {
             }
 
             // Get item details
-            List<Item> items = itemRepository.findAllById(ids);
-            if (items.isEmpty()) {
+            List<Product> products = productRepository.findAllById(ids);
+            if (products.isEmpty()) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Items not found in database"
@@ -93,7 +88,7 @@ public class TransactionRecordController {
             }
 
             // Print receipt
-            printingService.printReceipt(items);
+            printingService.printReceipt(products);
 
             return new ResponseEntity<String>("Transaction completed", HttpStatus.OK);
 
