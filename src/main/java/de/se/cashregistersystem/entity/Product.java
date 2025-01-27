@@ -1,16 +1,14 @@
 package de.se.cashregistersystem.entity;
 
 
-import de.se.cashregistersystem.util.Scanable;
+import de.se.cashregistersystem.dto.Scanable;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "item")
-public class Item implements Scanable {
+public class Product implements Scanable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -71,12 +69,12 @@ public class Item implements Scanable {
     }
 
     // Default constructor
-    public Item() {}
+    public Product() {}
 
     // Constructor with all attributes
-    public Item(String name, String barcodeId, UUID brandId, String description,
-                char nutriscore, String imgUrl, double price, double pledgeValue,
-                boolean isNonScanable, String category) {
+    public Product(String name, String barcodeId, UUID brandId, String description,
+                   char nutriscore, String imgUrl, double price, double pledgeValue,
+                   boolean isNonScanable, String category) {
         this.name = name;
         this.barcodeId = barcodeId;
         this.brandId = brandId;

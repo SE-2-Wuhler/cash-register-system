@@ -1,6 +1,6 @@
 package de.se.cashregistersystem.entity;
 
-import de.se.cashregistersystem.util.Scanable;
+import de.se.cashregistersystem.dto.Scanable;
 import jakarta.persistence.*;
 
 import java.util.UUID;
@@ -13,14 +13,15 @@ public class Pledge implements Scanable {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "transaction_id" )
+    private UUID transactionId;
 
     @Column(name = "barcode_id")
     private String barcodeId;
-
-
-
     @Column(name ="value")
     private double value;
+
+
 
     public Pledge(){}
 
@@ -32,8 +33,7 @@ public class Pledge implements Scanable {
         this.value = value;
     }
 
-    public Pledge(String barcode_id, double value){
-        this.barcodeId = barcode_id;
+    public Pledge(double value){
         this.value = value;
     }
     public double getValue() {
@@ -46,6 +46,18 @@ public class Pledge implements Scanable {
 
     public String getBarcodeId() {
         return barcodeId;
+    }
+
+    public boolean isValidated() {
+        return transactionId != null;
+    }
+
+    public void setTransactionId(UUID transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public UUID getTransactionId() {
+        return transactionId;
     }
 
     @Override

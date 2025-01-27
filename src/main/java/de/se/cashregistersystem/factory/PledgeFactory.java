@@ -1,22 +1,48 @@
 package de.se.cashregistersystem.factory;
 
-import de.se.cashregistersystem.dto.PledgeDTO;
+import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
 import de.se.cashregistersystem.entity.Pledge;
-import de.se.cashregistersystem.util.POSBarcode;
+import de.se.cashregistersystem.entity.Product;
+import de.se.cashregistersystem.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
 
 @Service
 public class PledgeFactory {
+    @Autowired
+    ProductRepository productRepository;
+    public static class InvalidPledgeException extends Exception{
 
-    public Pledge create(String barcode_id, double value){
-        return new Pledge(barcode_id,value);
+        public InvalidPledgeException(String message){
+            super(message);
+        }
+
+    }
+    public Pledge create(ProductWithQuantityDTO[] products) throws InvalidPledgeException {
+        double value = calculateValue(products);
+        if(value <= 0){
+            throw new InvalidPledgeException("Invalid pledge value : " + value +  " <= 0" );
+        }
+        return new Pledge(value);
     }
 
-    /**
-     * Creates a copy of an existing Pledge instance.
-     *
-     * @param original The original Pledge to copy.
-     * @return A new Pledge instance with the same properties as the original.
-     */
+    private double calculateValue(ProductWithQuantityDTO[] items){
+        double value = 0;
+        for ( ProductWithQuantityDTO item: items) {
+
+            Optional<Product> productOpt = productRepository.findById(item.getItemId());
+            if(productOpt.isEmpty()){
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id: " + item.getItemId());
+            }
+            Product product  = productOpt.get();
+
+            value += product.getPledgeValue() * item.getQuantity();
+        }
+        return value;
+    }
 
 }

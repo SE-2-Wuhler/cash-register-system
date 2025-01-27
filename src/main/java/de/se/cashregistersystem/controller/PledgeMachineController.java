@@ -1,27 +1,24 @@
 package de.se.cashregistersystem.controller;
 
-
-
-import de.se.cashregistersystem.dto.ItemWithQuantityDTO;
-import de.se.cashregistersystem.dto.PledgeDTO;
-import de.se.cashregistersystem.entity.Item;
-import de.se.cashregistersystem.entity.Pledge;
+import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
+import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.repository.PledgeRepository;
 import de.se.cashregistersystem.service.PledgeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/pledge")
-
 public class PledgeMachineController {
+    private static final Logger logger = LoggerFactory.getLogger(PledgeMachineController.class);
 
     @Autowired
     private PledgeRepository pledgeRepository;
@@ -29,28 +26,41 @@ public class PledgeMachineController {
     private PledgeService service;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createPledge(@RequestBody ItemWithQuantityDTO[] itemWithQuantityDTO){
+    public ResponseEntity<UUID> createPledge(@RequestBody ProductWithQuantityDTO[] productWithQuantityDTO) {
+        logger.debug("Attempting to create pledge with {} items", productWithQuantityDTO.length);
 
-        try {
-            UUID id = service.createPledge(itemWithQuantityDTO);
-            return new ResponseEntity<String>("Pledge "+  id.toString() +  " has been created.",HttpStatus.CREATED);
-        } catch (Exception e) {
-            System.out.println(e);
-            return new ResponseEntity<String>("Failed to create Pledge", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (productWithQuantityDTO.length == 0) {
+            logger.error("Received empty or null item array for pledge creation");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot create pledge with empty item list"
+            );
         }
+            UUID pledgeId = service.createPledge(productWithQuantityDTO);
+            logger.info("Successfully created pledge with ID: {}", pledgeId);
+            return new ResponseEntity<>(
+                    pledgeId,
+                    HttpStatus.CREATED
+            );
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<?> getAll(){
-        try {
-            return new ResponseEntity<List<Item>>(service.getAllPledgeItems(), HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<String>("Failed to load Pledge Items", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @GetMapping("/get-all-products-with-pledge")
+    public ResponseEntity<List<Product>> getAll() {
+        logger.debug("Fetching all pledge items");
+
+
+            List<Product> products = service.getAllPledgeItems();
+
+            if (products.isEmpty()) {
+                logger.info("No pledge items found");
+                throw new ResponseStatusException(
+                        HttpStatus.NO_CONTENT,
+                        "No pledge items available"
+                );
+            }
+
+            logger.debug("Successfully retrieved {} pledge items", products.size());
+
+            return new ResponseEntity<>(products, HttpStatus.OK);
     }
-
-
-
-
-
 }

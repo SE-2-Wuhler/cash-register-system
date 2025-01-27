@@ -1,16 +1,19 @@
 package de.se.cashregistersystem.controller;
 
 import de.se.cashregistersystem.dto.CreateProductDTO;
-import de.se.cashregistersystem.factory.ItemFactory;
-import de.se.cashregistersystem.repository.ItemRepository;
+import de.se.cashregistersystem.entity.Product;
+import de.se.cashregistersystem.factory.ProductFactory;
+import de.se.cashregistersystem.repository.ProductRepository;
 import de.se.cashregistersystem.service.OpenFoodFactsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/product")
@@ -18,37 +21,48 @@ public class ProductController {
     @Autowired
     private OpenFoodFactsService foodService;
     @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
     @Autowired
-    ItemFactory itemFactory;
-    @GetMapping("/create")
-    public ResponseEntity<String> create(@RequestBody CreateProductDTO request) {
+    ProductFactory productFactory;
+    @PostMapping("/create")
+    public ResponseEntity<Product> create(@RequestBody CreateProductDTO request) {
 
-        try {
+            if (request.getBarcodeId() == null || request.getBarcodeId().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode ID is required");
+            }
+            if (request.getPrice() <= 0 ) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price is required");
+            }
+
+
             JSONObject foodFacts = foodService.getProductByBarcode(request.getBarcodeId());
 
-            // Extrahieren der brand_id (in diesem Fall nehmen wir einfach den Markennamen)
-            String brandName = foodFacts.getString("brands");
-            String productName = foodFacts.getString("product_name");
-            // Bestimmen der Art des Produkts
-            String categories = foodFacts.getString("categories");
-            boolean fluid = false;
-            String containerType = "Unbekannt";
-
-            if (categories.toLowerCase().contains("getränke")) {
-                fluid = true;
-                return new ResponseEntity<String>(HttpStatus.OK);
-
-
+            if (foodFacts == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found for the given barcode");
             }
-            itemRepository.save(itemFactory.create(cleanString(productName),cleanString(request.getBarcodeId()), cleanString(brandName),fluid, request.getPrice(), cleanString(categories)));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        return new ResponseEntity<>("Product has been created",HttpStatus.CREATED);
+
+            String brandName = foodFacts.optString("brands", "");
+            String productName = foodFacts.optString("product_name", "");
+            String categories = foodFacts.optString("categories", "");
+            char nutriscore = 'A';
+            String imgUrl = "";
+
+            Product product = productFactory.create(
+                    cleanString(productName),
+                    cleanString(request.getBarcodeId()),
+                    cleanString(brandName),
+                    request.getPledgeValue(),
+                    request.getPrice(),
+                    cleanString(categories),
+                    nutriscore,
+                    cleanString(imgUrl)
+            );
+            product = productRepository.save(product);
+
+            return new ResponseEntity<Product>(product, HttpStatus.CREATED);
     }
+
     private String cleanString(String input) {
-        if (input == null) return null;
-        return input.replaceAll("\u0000", "");
+        return input == null ? null : input.replaceAll("\u0000", "");
     }
 }

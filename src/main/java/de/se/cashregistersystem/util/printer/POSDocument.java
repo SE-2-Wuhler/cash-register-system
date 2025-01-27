@@ -1,4 +1,4 @@
-package de.se.cashregistersystem.util;
+package de.se.cashregistersystem.util.printer;
 
 import java.util.ArrayList;
 import java.util.List;
