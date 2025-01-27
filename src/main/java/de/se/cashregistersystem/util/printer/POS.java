@@ -1,4 +1,4 @@
-package de.se.cashregistersystem.util;
+package de.se.cashregistersystem.util.printer;
 
 public class POS {
     public static class Command {

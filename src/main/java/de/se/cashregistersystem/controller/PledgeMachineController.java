@@ -36,37 +36,19 @@ public class PledgeMachineController {
                     "Cannot create pledge with empty item list"
             );
         }
-
-        try {
-            UUID id = service.createPledge(productWithQuantityDTO);
-            logger.info("Successfully created pledge with ID: {}", id);
+            UUID pledgeId = service.createPledge(productWithQuantityDTO);
+            logger.info("Successfully created pledge with ID: {}", pledgeId);
             return new ResponseEntity<>(
-                    id,
+                    pledgeId,
                     HttpStatus.CREATED
             );
-
-        } catch (IllegalArgumentException e) {
-            logger.error("Invalid data provided for pledge creation: {}", e.getMessage());
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid pledge data: " + e.getMessage()
-            );
-
-        } catch (Exception e) {
-            logger.error("Error creating pledge: {}", e.getMessage(), e);
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error creating pledge: " + e.getMessage(),
-                    e
-            );
-        }
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/get-all-products-with-pledge")
     public ResponseEntity<List<Product>> getAll() {
         logger.debug("Fetching all pledge items");
 
-        try {
+
             List<Product> products = service.getAllPledgeItems();
 
             if (products.isEmpty()) {
@@ -78,18 +60,7 @@ public class PledgeMachineController {
             }
 
             logger.debug("Successfully retrieved {} pledge items", products.size());
+
             return new ResponseEntity<>(products, HttpStatus.OK);
-
-        } catch (ResponseStatusException e) {
-            throw e;
-
-        } catch (Exception e) {
-            logger.error("Error fetching pledge items: {}", e.getMessage(), e);
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error fetching pledge items: " + e.getMessage(),
-                    e
-            );
-        }
     }
 }

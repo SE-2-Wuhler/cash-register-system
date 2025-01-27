@@ -2,7 +2,7 @@ package de.se.cashregistersystem.controller;
 
 import de.se.cashregistersystem.dto.CreateProductDTO;
 import de.se.cashregistersystem.entity.Product;
-import de.se.cashregistersystem.factory.ItemFactory;
+import de.se.cashregistersystem.factory.ProductFactory;
 import de.se.cashregistersystem.repository.ProductRepository;
 import de.se.cashregistersystem.service.OpenFoodFactsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -21,13 +23,17 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    ItemFactory itemFactory;
+    ProductFactory productFactory;
     @PostMapping("/create")
     public ResponseEntity<Product> create(@RequestBody CreateProductDTO request) {
-        try {
+
             if (request.getBarcodeId() == null || request.getBarcodeId().isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode ID is required");
             }
+            if (request.getPrice() <= 0 ) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price is required");
+            }
+
 
             JSONObject foodFacts = foodService.getProductByBarcode(request.getBarcodeId());
 
@@ -38,25 +44,22 @@ public class ProductController {
             String brandName = foodFacts.optString("brands", "");
             String productName = foodFacts.optString("product_name", "");
             String categories = foodFacts.optString("categories", "");
-            boolean fluid = categories.toLowerCase().contains("getränke");
+            char nutriscore = 'A';
+            String imgUrl = "";
 
-
-            Product product = productRepository.save(itemFactory.create(
+            Product product = productFactory.create(
                     cleanString(productName),
                     cleanString(request.getBarcodeId()),
                     cleanString(brandName),
-                    fluid,
+                    request.getPledgeValue(),
                     request.getPrice(),
-                    cleanString(categories)
-            ));
-
-            System.out.println(product.toString());
+                    cleanString(categories),
+                    nutriscore,
+                    cleanString(imgUrl)
+            );
+            product = productRepository.save(product);
 
             return new ResponseEntity<Product>(product, HttpStatus.CREATED);
-
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", e);
-        }
     }
 
     private String cleanString(String input) {

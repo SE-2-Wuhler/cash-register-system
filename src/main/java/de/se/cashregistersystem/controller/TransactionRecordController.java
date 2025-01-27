@@ -1,8 +1,11 @@
 package de.se.cashregistersystem.controller;
 
+import de.se.cashregistersystem.dto.CompleteTransactionDTO;
 import de.se.cashregistersystem.dto.TransactionRequestDTO;
+import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.entity.TransactionRecord;
+import de.se.cashregistersystem.repository.PledgeRepository;
 import de.se.cashregistersystem.repository.ProductRepository;
 import de.se.cashregistersystem.repository.ProductTransactionRepository;
 import de.se.cashregistersystem.repository.TransactionRecordRepository;
@@ -30,38 +33,32 @@ public class TransactionRecordController {
     @Autowired
     private TransactionRecordService service;
     @Autowired
-    private PayPalService payPalService;
+    private PayPalService paypalService;
     @Autowired
     private PrintingService printingService;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private PledgeRepository pledgeRepository;
 
     @GetMapping("/{id}")
     public ResponseEntity<TransactionRecord> getTransactionById(@PathVariable UUID id){
+
         Optional<TransactionRecord> transaction = transactionRecordRepository.findById(id);
-        if (!transaction.isPresent()){
+        if (!transaction.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found.");
         }
         return new ResponseEntity<>(transaction.get(), HttpStatus.OK);
     }
     @PostMapping("/create")
     public ResponseEntity<Object> create(@RequestBody TransactionRequestDTO requestDTO){
-        try{
-            UUID transactionRecord = service.createTransactionRecord(requestDTO.getItems(), requestDTO.getPledges());
-            if(transactionRecord == null){
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create new Transaction");
-            }
-            return new ResponseEntity<>(transactionRecord, HttpStatus.CREATED);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create new Transaction " + e.getMessage());
-        }
+
+            UUID transactionRecordId = service.createTransactionRecord(requestDTO.getItems(), requestDTO.getPledges());
+            return new ResponseEntity<>(transactionRecordId, HttpStatus.CREATED);
     }
     @PostMapping("/complete")
-    public ResponseEntity<UUID> completeTransaction(@RequestBody  Map<String,String> body) {
-        String orderId = body.get("orderId");
-        String currentTransactionId = body.get("transactionId");
-
-
+    public ResponseEntity<String> completeTransaction(@RequestBody CompleteTransactionDTO body) {
+        String orderId = body.getOrderId();
 
 
         if (orderId == null || orderId.trim().isEmpty()) {
@@ -70,41 +67,21 @@ public class TransactionRecordController {
                     "Order ID cannot be null or empty"
             );
         }
-
-        try {
-            // Verify PayPal payment
-            UUID transactionId = payPalService.verifyPayment(orderId);
+            UUID transactionId = paypalService.verifyPayment(orderId);
 
             // Get items for transaction
-            List<UUID> ids = productTransactionRepository.getItemsByTransactionId(transactionId);
-            if (ids == null || ids.isEmpty()) {
+            Optional<List<UUID>> productIds = productTransactionRepository.getProductsByTransactionId(transactionId);
+            List<Pledge> pledges = pledgeRepository.findPledgesByTransactionId(transactionId).get();
+            if (productIds.isEmpty() && pledges.isEmpty()) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "No items found for transaction: " + transactionId
                 );
             }
+            List<Product> products = productRepository.findAllById(productIds.get());
 
-            // Get item details
-            List<Product> products = productRepository.findAllById(ids);
-            if (products.isEmpty()) {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Items not found in database"
-                );
-            }
-
-            // Print receipt
-            printingService.printReceipt(products);
+            printingService.printReceipt(products, pledges);
 
             return new ResponseEntity<String>("Transaction completed", HttpStatus.OK);
-
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to complete transaction: " + e.getMessage()
-            );
-        }
     }
 }

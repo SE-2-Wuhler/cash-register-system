@@ -1,6 +1,6 @@
 package de.se.cashregistersystem.service;
 
-import de.se.cashregistersystem.controller.TransactionRecordController;
+
 import de.se.cashregistersystem.entity.TransactionRecord;
 import de.se.cashregistersystem.repository.TransactionRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,16 +113,9 @@ public class PayPalService {
         }
 
         try {
-            UUID transactionUUID = UUID.fromString(transactionId);
-            TransactionRecord record = transactionRecordRepository.findById(transactionUUID)
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Transaction not found with ID: " + transactionId
-                    ));
 
-            record.setStatus("paid");
-            transactionRecordRepository.save(record);
-            return transactionUUID;
+            return UUID.fromString(transactionId);
+
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY,

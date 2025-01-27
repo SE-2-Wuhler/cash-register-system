@@ -12,15 +12,9 @@ public class TransactionRequestDTO {
         return items;
     }
 
-    public void setItems(ProductWithQuantityDTO[] items) {
-        this.items = items;
-    }
-
     public UUID[] getPledges() {
         return pledges;
     }
 
-    public void setPledges(UUID[] pledges) {
-        this.pledges = pledges;
-    }
+
 }

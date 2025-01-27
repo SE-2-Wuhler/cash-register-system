@@ -1,6 +1,6 @@
 package de.se.cashregistersystem.entity;
 
-import de.se.cashregistersystem.util.Scanable;
+import de.se.cashregistersystem.dto.Scanable;
 import jakarta.persistence.*;
 
 import java.util.UUID;

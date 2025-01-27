@@ -1,4 +1,4 @@
-package de.se.cashregistersystem.util;
+package de.se.cashregistersystem.dto;
 
 import java.util.UUID;
 

@@ -2,10 +2,10 @@ package de.se.cashregistersystem.service;
 
 import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.entity.Product;
-import de.se.cashregistersystem.util.POS;
-import de.se.cashregistersystem.util.POSPrinter;
-import de.se.cashregistersystem.util.POSReceipt;
-import de.se.cashregistersystem.util.POSBarcode;
+import de.se.cashregistersystem.util.printer.POS;
+import de.se.cashregistersystem.util.printer.POSPrinter;
+import de.se.cashregistersystem.util.printer.POSReceipt;
+import de.se.cashregistersystem.util.printer.POSBarcode;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,19 +25,17 @@ public class PrintingService {
     private static final String ADDRESS = "Wuehlallee 1";
     private static final String PHONE = "0176 12345678";
 
-    public void printReceipt(List<Product> products) {
+    public String printReceipt(List<Product> products, List<Pledge> pledges) {
         if (products == null || products.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Cannot print receipt: Item list is empty or null"
             );
         }
-        print(new ItemListPrintStrategy(products));
+        return print(new ItemListPrintStrategy(products, pledges));
     }
 
     public String printPledgeReceipt(Pledge pledge) {
-
-
         return print(new PledgePrintStrategy(pledge));
     }
 
@@ -47,8 +45,7 @@ public class PrintingService {
             System.out.println("Mock Printing Receipt: " + strategy.toString());
             return "xxDebugxx";
         }
-
-        try {
+        
             PrintService printerService = findPrintService(PRINTER_NAME);
             if (printerService == null) {
                 throw new ResponseStatusException(
@@ -78,7 +75,7 @@ public class PrintingService {
                 );
             }
 
-            receipt.setFooterLine("Thank you for your purchase!");
+            receipt.setFooterLine("Thank you for your purchase @ " + TITLE + "!");
 
             try {
                 posPrinter.print(receipt, printerService);
@@ -90,16 +87,8 @@ public class PrintingService {
             }
 
             return barcodeString;
-
-        } catch (ResponseStatusException e) {
-            throw e; // Rethrow ResponseStatusExceptions as they are
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Unexpected error during printing: " + e.getMessage()
-            );
-        }
     }
+    
 
     private PrintService findPrintService(String printerName) {
         try {
@@ -136,7 +125,6 @@ public class PrintingService {
             }
             int checkDigit = (10 - (sum % 10)) % 10;
 
-            // Append check digit
             sb.append(checkDigit);
 
             return sb.toString();
@@ -148,43 +136,64 @@ public class PrintingService {
         }
     }
 
-    // Strategy Interface
+
     private interface PrintStrategy {
         void addItemsToReceipt(POSReceipt receipt);
     }
 
-    // Concrete strategy for Item list
+
     private static class ItemListPrintStrategy implements PrintStrategy {
         private final List<Product> products;
+        private final List<Pledge> pledges;
 
-        ItemListPrintStrategy(List<Product> products) {
+        ItemListPrintStrategy(List<Product> products, List<Pledge> pledges) {
             this.products = products;
+            this.pledges = pledges;
         }
 
         @Override
         public void addItemsToReceipt(POSReceipt receipt) {
-            Map<String, ItemGroup> groupedItems = products.stream()
+            // Group products by name and calculate quantities and total prices
+            Map<String, ProductGroup> groupedProducts = products.stream()
                     .collect(Collectors.groupingBy(
                             Product::getName,
                             Collectors.collectingAndThen(
                                     Collectors.toList(),
-                                    list -> new ItemGroup(
+                                    list -> new ProductGroup(
                                             list.size(),
-                                            list.get(0).getPrice() * list.size()
+                                            list.get(0).getPrice() * list.size(),
+                                            list.get(0).getPledgeValue() * list.size()
                                     )
                             )
                     ));
 
-            groupedItems.forEach((name, group) -> {
-                String itemName = group.quantity > 1 ?
+            // Add regular items with their prices
+            groupedProducts.forEach((name, group) -> {
+                // Add main item
+                String productName = group.quantity > 1 ?
                         String.format("%dx %s", group.quantity, name) :
                         name;
-                receipt.addItem(itemName, group.totalPrice);
+                receipt.addItem(productName, group.totalPrice);
+
+                // Add deposit line if there is a deposit value
+                if (group.totalPledge > 0) {
+                    String pledgeName = group.quantity > 1 ?
+                            String.format("%dx Pfand", group.quantity) :
+                            "Pfand";
+                    receipt.addItem(pledgeName, group.totalPledge);
+                }
             });
+
+            double totalPledgeValue = pledges.stream()
+                    .mapToDouble(Pledge::getValue)
+                    .sum();
+
+            // Add redeemed deposit voucher if exists
+            receipt.addItem("Pfand", -totalPledgeValue);
         }
     }
 
-    // Concrete strategy for double value
+
     private static class PledgePrintStrategy implements PrintStrategy {
         private final Pledge pledge;
 
@@ -198,13 +207,15 @@ public class PrintingService {
         }
     }
 
-    private static class ItemGroup {
+    private static class ProductGroup {
         final int quantity;
         final double totalPrice;
+        final double totalPledge;
 
-        ItemGroup(int quantity, double totalPrice) {
+        ProductGroup(int quantity, double totalPrice, double totalPledge) {
             this.quantity = quantity;
             this.totalPrice = totalPrice;
+            this.totalPledge = totalPledge;
         }
     }
 }

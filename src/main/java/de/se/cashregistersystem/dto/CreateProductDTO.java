@@ -3,7 +3,14 @@ package de.se.cashregistersystem.dto;
 public class CreateProductDTO {
 
     private String barcodeId;
+    private double price;
+    private double pledgeValue;
 
+    public CreateProductDTO(String barcodeId, double price, double pledgeValue) {
+        this.barcodeId = barcodeId;
+        this.price = price;
+        this.pledgeValue = pledgeValue;
+    }
     public String getBarcodeId() {
         return barcodeId;
     }
@@ -12,10 +19,11 @@ public class CreateProductDTO {
         return price;
     }
 
-    private double price;
+    public double getPledgeValue() {
+        return pledgeValue;
+    }
 
-    public CreateProductDTO(String barcodeId, double price) {
-        this.barcodeId = barcodeId;
-        this.price = price;
+    public void setPledgeValue(double pledgeValue) {
+        this.pledgeValue = pledgeValue;
     }
 }

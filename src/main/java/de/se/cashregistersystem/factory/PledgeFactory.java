@@ -1,12 +1,9 @@
 package de.se.cashregistersystem.factory;
 
-import de.se.cashregistersystem.dto.PledgeDTO;
 import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
 import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.repository.ProductRepository;
-import de.se.cashregistersystem.util.POSBarcode;
-import org.apache.el.util.ReflectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

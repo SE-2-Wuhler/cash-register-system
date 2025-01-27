@@ -5,33 +5,36 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "item_transaction")
+@Table(name = "product_transaction")
 public class ProductTransaction {
+    public ProductTransaction(UUID transactionRecordId, UUID productId) {
+        this.transactionRecordId = transactionRecordId;
+        this.productId = productId;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
-
     @Column(name = "transaction_id", nullable = false)
-    private UUID transactionRecord;
+    private UUID transactionRecordId;
 
-    @Column(name = "itemid", nullable = false)
-    private UUID item;
+    @Column(name = "product_id", nullable = false)
+    private UUID productId;
 
-    public UUID getTransactionRecord() {
-        return transactionRecord;
+    public UUID getTransactionRecordId() {
+        return transactionRecordId;
     }
 
-    public void setTransactionRecord(UUID transactionRecord) {
-        this.transactionRecord = transactionRecord;
+    public void setTransactionRecordId(UUID transactionRecordId) {
+        this.transactionRecordId = transactionRecordId;
     }
 
-    public UUID getItem() {
-        return item;
+    public UUID getProductId() {
+        return productId;
     }
 
-    public void setItem(UUID item) {
-        this.item = item;
+    public void setProductId(UUID productId) {
+        this.productId = productId;
     }
 }

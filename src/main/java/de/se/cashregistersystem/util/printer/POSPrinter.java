@@ -1,4 +1,4 @@
-package de.se.cashregistersystem.util;
+package de.se.cashregistersystem.util.printer;
 
 import javax.print.*;
 import java.io.ByteArrayInputStream;
