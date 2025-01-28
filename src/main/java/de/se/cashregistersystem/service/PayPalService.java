@@ -1,11 +1,21 @@
 package de.se.cashregistersystem.service;
 
 
-import de.se.cashregistersystem.entity.TransactionRecord;
-import de.se.cashregistersystem.repository.TransactionRecordRepository;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -15,13 +25,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
-
 @Service
 public class PayPalService {
 
     @Autowired
-    private TransactionRecordRepository transactionRecordRepository;
     private static final String PAYPAL_API = "https://api-m.sandbox.paypal.com";
 
     @Value("${paypal.client.id}")
@@ -30,7 +37,15 @@ public class PayPalService {
     @Value("${paypal.client.secret}")
     private String clientSecret;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public PayPalService() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    public PayPalService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public UUID verifyPayment(String orderId) {
         String accessToken;

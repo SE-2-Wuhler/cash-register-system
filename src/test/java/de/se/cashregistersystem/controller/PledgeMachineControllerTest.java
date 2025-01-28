@@ -1,28 +1,25 @@
 package de.se.cashregistersystem.controller;
 
-import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
-import de.se.cashregistersystem.entity.Product;
-import de.se.cashregistersystem.repository.PledgeRepository;
-import de.se.cashregistersystem.service.PledgeService;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
+import de.se.cashregistersystem.entity.Product;
+import de.se.cashregistersystem.service.PledgeService;
 
 class PledgeMachineControllerTest {
-
-    @Mock
-    private PledgeRepository pledgeRepository;
 
     @Mock
     private PledgeService pledgeService;
