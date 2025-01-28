@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.util.printer.POS;
@@ -136,12 +137,12 @@ public class PrintingService {
         }
     }
 
-
+    @VisibleForTesting
     private interface PrintStrategy {
         void addItemsToReceipt(POSReceipt receipt);
     }
 
-
+    @VisibleForTesting
     private static class ItemListPrintStrategy implements PrintStrategy {
         private final List<Product> products;
         private final List<Pledge> pledges;
@@ -193,7 +194,6 @@ public class PrintingService {
         }
     }
 
-
     private static class PledgePrintStrategy implements PrintStrategy {
         private final Pledge pledge;
 
@@ -206,7 +206,7 @@ public class PrintingService {
             receipt.addItem("Pledge Value", pledge.getValue());
         }
     }
-
+    @VisibleForTesting
     private static class ProductGroup {
         final int quantity;
         final double totalPrice;

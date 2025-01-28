@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
 import de.se.cashregistersystem.entity.*;
 import de.se.cashregistersystem.factory.TransactionRecordFactory;
@@ -69,7 +70,7 @@ public class TransactionRecordService {
         }
         return productsList;
     }
-
+    @VisibleForTesting()
     private List<Pledge> getPledgesList(UUID[] pledges){
         List<Pledge> pledgesList = new ArrayList<>();
         for ( UUID pledgeId : pledges){
