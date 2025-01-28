@@ -44,9 +44,7 @@ public class Brand {
         this.address = address;
     }
 
-    public Brand(){
-
-    }
+    public Brand(){}
     public Brand(String name, String address){
         this.name = name;
         this.address = address;

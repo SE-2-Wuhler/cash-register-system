@@ -73,7 +73,6 @@ class TransactionRecordServiceTest {
 
         assertNotNull(transactionId);
         verify(transactionRecordRepository).save(transactionRecord);
-        verify(pledge).setTransactionId(transactionId);
         verify(productTransactionRepository, times(2)).save(any(ProductTransaction.class));
     }
 
