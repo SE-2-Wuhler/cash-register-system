@@ -32,10 +32,12 @@ public class TransactionRecord {
     }
 
     public TransactionRecord() {
+        this.status = "unpaid";
     }
 
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+        this.status = "unpaid";
     }
     public void setStatus(String status) {
         this.status = status;

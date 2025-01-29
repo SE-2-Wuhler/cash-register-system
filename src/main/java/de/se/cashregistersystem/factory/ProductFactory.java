@@ -35,7 +35,7 @@ public class ProductFactory {
         }
 
         // Check for existing item
-        Optional<Product> item = productRepository.findItemByBarcodeId(barcodeId);
+        Optional<Product> item = productRepository.findProductByBarcodeId(barcodeId);
         if (item.isPresent()) {
             Product currentProduct = item.get();
             currentProduct.setPrice(price);

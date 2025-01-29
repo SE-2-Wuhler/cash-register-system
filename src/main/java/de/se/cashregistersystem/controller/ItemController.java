@@ -66,7 +66,7 @@ public class ItemController {
             );
         }
 
-        Optional<Product> item = productRepository.findItemByBarcodeId(barcodeId);
+        Optional<Product> item = productRepository.findProductByBarcodeId(barcodeId);
         if (item.isPresent()) {
             logger.debug("Found product for barcode: {}", barcodeId);
             return new ResponseEntity<>(item.get(), HttpStatus.OK);

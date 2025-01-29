@@ -41,7 +41,7 @@ public class PledgeService {
     }
     public List<Product> getAllPledgeItems(){
 
-            Optional<List<Product>> productsOpt = productRepository.findItemsWithPositivePledgeValue();
+            Optional<List<Product>> productsOpt = productRepository.findProductsWithPositivePledgeValue();
             if(productsOpt.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Items with positive Pledge Values found");
             }

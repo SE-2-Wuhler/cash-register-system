@@ -41,7 +41,7 @@ class ItemControllerTest {
     void getById_withValidProductBarcode_returnsProduct() {
         String barcodeId = "validProductBarcode";
         Product product = new Product();
-        when(productRepository.findItemByBarcodeId(barcodeId)).thenReturn(Optional.of(product));
+        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.of(product));
 
         ResponseEntity<Scanable> response = itemController.getById(barcodeId);
 
@@ -53,7 +53,7 @@ class ItemControllerTest {
     void getById_withValidPledgeBarcode_returnsPledge() {
         String barcodeId = "validPledgeBarcode";
         Pledge pledge = new Pledge();
-        when(productRepository.findItemByBarcodeId(barcodeId)).thenReturn(Optional.empty());
+        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
         when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.of(pledge));
 
         ResponseEntity<Scanable> response = itemController.getById(barcodeId);
@@ -73,7 +73,7 @@ class ItemControllerTest {
     @Test
     void getById_withNonExistentBarcode_throwsNotFound() {
         String barcodeId = "nonExistentBarcode";
-        when(productRepository.findItemByBarcodeId(barcodeId)).thenReturn(Optional.empty());
+        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
         when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> itemController.getById(barcodeId));
@@ -85,11 +85,11 @@ class ItemControllerTest {
     void getById_withValidatedPledge_throwsNotFound() {
         String barcodeId = "validatedPledgeBarcode";
         Pledge pledge = mock(Pledge.class);
-        when(productRepository.findItemByBarcodeId(barcodeId)).thenReturn(Optional.empty());
+        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
         when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.of(pledge));
 
         when(pledge.isValidated()).thenReturn(true);
-        when(productRepository.findItemByBarcodeId(barcodeId)).thenReturn(Optional.empty());
+        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
         when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.of(pledge));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> itemController.getById(barcodeId));

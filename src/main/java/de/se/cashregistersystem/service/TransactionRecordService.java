@@ -75,7 +75,7 @@ public class TransactionRecordService {
         List<Pledge> pledgesList = new ArrayList<>();
         for ( UUID pledgeId : pledges){
             Pledge currentPledge = pledgeRepository.findById(pledgeId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid ItemID: " + pledgeId));
-            if(currentPledge.getTransactionId() != null){
+            if(currentPledge.getTransactionId() == null){
                 pledgesList.add(currentPledge);
             }
         }

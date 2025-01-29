@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.controller;
 
+import de.se.cashregistersystem.dto.CompleteOrderResponseDTO;
 import de.se.cashregistersystem.dto.CompleteTransactionDTO;
 import de.se.cashregistersystem.dto.TransactionRequestDTO;
 import de.se.cashregistersystem.entity.Pledge;
@@ -130,7 +131,7 @@ public class TransactionRecordController {
             )
     })
     @PostMapping("/complete")
-    public ResponseEntity<String> completeTransaction(
+    public ResponseEntity<CompleteOrderResponseDTO> completeTransaction(
             @Parameter(
                     description = "Transaction completion request containing PayPal order ID",
                     required = true,
@@ -156,9 +157,9 @@ public class TransactionRecordController {
             );
         }
         List<Product> products = productRepository.findAllById(productIds.get());
-
+        service.complete(transactionId);
         printingService.printReceipt(products, pledges);
 
-        return new ResponseEntity<>("Transaction completed", HttpStatus.OK);
+        return new ResponseEntity<CompleteOrderResponseDTO>(new CompleteOrderResponseDTO("Transaction completed"), HttpStatus.OK);
     }
 }

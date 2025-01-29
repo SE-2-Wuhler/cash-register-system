@@ -19,12 +19,17 @@ public class ProductTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "transaction_id", nullable = false)
     private UUID transactionRecordId;
 
     @Column(name = "product_id", nullable = false)
     private UUID productId;
+
+    public ProductTransaction() {
+
+    }
 
     public UUID getTransactionRecordId() {
         return transactionRecordId;

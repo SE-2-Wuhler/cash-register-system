@@ -92,17 +92,17 @@ public class PledgeServiceTest {
     public void testGetAllPledgeItems_Success() {
         List<Product> products = List.of(new Product());
 
-        when(productRepository.findItemsWithPositivePledgeValue()).thenReturn(Optional.of(products));
+        when(productRepository.findProductsWithPositivePledgeValue()).thenReturn(Optional.of(products));
 
         List<Product> result = pledgeService.getAllPledgeItems();
 
         assertEquals(products, result);
-        verify(productRepository).findItemsWithPositivePledgeValue();
+        verify(productRepository).findProductsWithPositivePledgeValue();
     }
 
     @Test
     public void testGetAllPledgeItems_NotFound() {
-        when(productRepository.findItemsWithPositivePledgeValue()).thenReturn(Optional.empty());
+        when(productRepository.findProductsWithPositivePledgeValue()).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             pledgeService.getAllPledgeItems();
@@ -110,6 +110,6 @@ public class PledgeServiceTest {
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("No Items with positive Pledge Values found", exception.getReason());
-        verify(productRepository).findItemsWithPositivePledgeValue();
+        verify(productRepository).findProductsWithPositivePledgeValue();
     }
 }

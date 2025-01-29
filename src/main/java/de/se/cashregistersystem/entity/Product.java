@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "item")
+@Table(name = "product")
 public class Product implements Scanable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

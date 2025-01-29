@@ -44,7 +44,7 @@ class ProductFactoryTest {
         char nutriscore = 'A';
         String imgUrl = "http://example.com/image.jpg";
 
-        when(productRepository.findItemByBarcodeId(barcodeId)).thenReturn(Optional.empty());
+        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
         when(brandRepository.findBrandByName(brandName)).thenReturn(Optional.empty());
         when(brandRepository.save(any(Brand.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -74,7 +74,7 @@ class ProductFactoryTest {
         Product existingProduct = new Product();
         existingProduct.setBarcodeId(barcodeId);
 
-        when(productRepository.findItemByBarcodeId(barcodeId)).thenReturn(Optional.of(existingProduct));
+        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.of(existingProduct));
 
         Product product = productFactory.create(name, barcodeId, brandName, pledgeValue, price, category, nutriscore, imgUrl);
 

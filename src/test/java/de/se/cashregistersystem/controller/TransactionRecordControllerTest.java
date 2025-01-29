@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.controller;
 
+import de.se.cashregistersystem.dto.CompleteOrderResponseDTO;
 import de.se.cashregistersystem.dto.CompleteTransactionDTO;
 import de.se.cashregistersystem.dto.TransactionRequestDTO;
 import de.se.cashregistersystem.entity.Pledge;
@@ -103,10 +104,10 @@ class TransactionRecordControllerTest {
         when(pledgeRepository.findPledgesByTransactionId(transactionId)).thenReturn(Optional.of(pledges));
         when(productRepository.findAllById(productIds)).thenReturn(products);
 
-        ResponseEntity<String> response = transactionRecordController.completeTransaction(body);
+        ResponseEntity<CompleteOrderResponseDTO> response = transactionRecordController.completeTransaction(body);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Transaction completed", response.getBody());
+        assertEquals("Transaction completed", response.getBody().getMessage());
     }
 
     @Test
