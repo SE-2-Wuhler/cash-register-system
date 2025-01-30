@@ -63,6 +63,10 @@ public class PrintingService {
 
             strategy.addItemsToReceipt(receipt);
 
+            double totalPrice = strategy.calculateTotalPrice();
+
+            receipt.setTotal(totalPrice);
+
             String barcodeString = generateRandomEAN13();
             try {
                 POSBarcode barcode = new POSBarcode(Long.parseLong(barcodeString), POS.BarcodeType.JAN13_EAN13);
@@ -140,6 +144,7 @@ public class PrintingService {
     @VisibleForTesting
     private interface PrintStrategy {
         void addItemsToReceipt(POSReceipt receipt);
+        double calculateTotalPrice();
     }
 
     @VisibleForTesting
@@ -150,6 +155,13 @@ public class PrintingService {
         ItemListPrintStrategy(List<Product> products, List<Pledge> pledges) {
             this.products = products;
             this.pledges = pledges;
+        }
+
+        // calculate the total price of all items
+        public double calculateTotalPrice() {
+            return products.stream()
+                    .mapToDouble(Product::getPrice)
+                    .sum();
         }
 
         @Override
@@ -189,10 +201,13 @@ public class PrintingService {
                     .mapToDouble(Pledge::getValue)
                     .sum();
 
-            // Add redeemed deposit voucher if exists
-            receipt.addItem("Pfand", -totalPledgeValue);
+            // Add total pledge value if it is greater than 0
+            if (totalPledgeValue > 0) {
+                receipt.addItem("Pfand", -totalPledgeValue);
+            }
         }
     }
+
 
     private static class PledgePrintStrategy implements PrintStrategy {
         private final Pledge pledge;
@@ -204,6 +219,11 @@ public class PrintingService {
         @Override
         public void addItemsToReceipt(POSReceipt receipt) {
             receipt.addItem("Pledge Value", pledge.getValue());
+        }
+
+        @Override
+        public double calculateTotalPrice() {
+            return 0;
         }
     }
     @VisibleForTesting
