@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
 import de.se.cashregistersystem.entity.Product;
-import de.se.cashregistersystem.service.PledgeService;
+import de.se.cashregistersystem.service.PledgeMachineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -34,7 +34,7 @@ public class PledgeMachineController {
     private static final Logger logger = LoggerFactory.getLogger(PledgeMachineController.class);
 
     @Autowired
-    private PledgeService service;
+    private PledgeMachineService service;
 
     @Operation(summary = "Create a new pledge",
             description = "Creates a new pledge with the provided products and their quantities")

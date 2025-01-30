@@ -17,12 +17,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import de.se.cashregistersystem.dto.ProductWithQuantityDTO;
 import de.se.cashregistersystem.entity.Product;
-import de.se.cashregistersystem.service.PledgeService;
+import de.se.cashregistersystem.service.PledgeMachineService;
 
 class PledgeMachineControllerTest {
 
     @Mock
-    private PledgeService pledgeService;
+    private PledgeMachineService pledgeMachineService;
 
     @InjectMocks
     private PledgeMachineController pledgeMachineController;
@@ -36,7 +36,7 @@ class PledgeMachineControllerTest {
     void createPledge_withValidProducts_createsPledge() {
         ProductWithQuantityDTO[] products = {new ProductWithQuantityDTO()};
         UUID pledgeId = UUID.randomUUID();
-        when(pledgeService.createPledge(products)).thenReturn(pledgeId);
+        when(pledgeMachineService.createPledge(products)).thenReturn(pledgeId);
 
         ResponseEntity<UUID> response = pledgeMachineController.createPledge(products);
 
@@ -56,7 +56,7 @@ class PledgeMachineControllerTest {
     @Test
     void getAll_withPledgeItems_returnsItems() {
         List<Product> products = List.of(new Product(), new Product());
-        when(pledgeService.getAllPledgeItems()).thenReturn(products);
+        when(pledgeMachineService.getAllPledgeItems()).thenReturn(products);
 
         ResponseEntity<List<Product>> response = pledgeMachineController.getAll();
 
@@ -66,7 +66,7 @@ class PledgeMachineControllerTest {
 
     @Test
     void getAll_withNoPledgeItems_throwsNoContent() {
-        when(pledgeService.getAllPledgeItems()).thenReturn(List.of());
+        when(pledgeMachineService.getAllPledgeItems()).thenReturn(List.of());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> pledgeMachineController.getAll());
         ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.NO_CONTENT, "No pledge items available");

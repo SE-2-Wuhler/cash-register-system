@@ -18,6 +18,8 @@ public class ProductFactory {
     BrandRepository brandRepository;
     @Autowired
     ProductRepository productRepository;
+    @Autowired
+    BrandFactory brandFactory;
 
     public Product create(String name, String barcodeId, String brandName, double pledgeValue, double price, String category, char nutriscore, String imgUrl) {
         // Validate input parameters
@@ -56,8 +58,7 @@ public class ProductFactory {
         // Handle brand
         Optional<Brand> existingBrand = brandRepository.findBrandByName(brandName);
         Brand brand;
-        brand = existingBrand.orElseGet(() -> brandRepository.save(new Brand(brandName, "")));
-
+        brand = existingBrand.orElseGet(() -> brandRepository.save(brandFactory.create(brandName)));
         newProduct.setBrandId(brand.getId());
         return newProduct;
     }

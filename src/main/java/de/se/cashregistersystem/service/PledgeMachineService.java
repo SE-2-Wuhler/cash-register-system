@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.List;
 
 @Service
-public class PledgeService {
+public class PledgeMachineService {
 
     @Autowired
     private PledgeRepository pledgeRepository;

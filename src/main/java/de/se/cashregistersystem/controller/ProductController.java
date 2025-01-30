@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.controller;
 
+import de.se.cashregistersystem.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -28,11 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Product", description = "The Product API for managing products in the cash register system")
 public class ProductController {
     @Autowired
-    private OpenFoodFactsService foodService;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    ProductFactory productFactory;
+    private ProductService productService;
 
     @Operation(
             summary = "Create a new product",
@@ -67,41 +64,9 @@ public class ProductController {
             )
             @RequestBody CreateProductDTO request) {
 
-        if (request.getBarcodeId() == null || request.getBarcodeId().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode ID is required");
-        }
-        if (request.getPrice() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price is required");
-        }
-
-        JSONObject foodFacts = foodService.getProductByBarcode(request.getBarcodeId());
-
-        if (foodFacts == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found for the given barcode");
-        }
-
-        String brandName = foodFacts.optString("brands", "");
-        String productName = foodFacts.optString("product_name", "");
-        String categories = foodFacts.optString("categories", "");
-        char nutriscore = 'A';
-        String imgUrl = "";
-
-        Product product = productFactory.create(
-                cleanString(productName),
-                cleanString(request.getBarcodeId()),
-                cleanString(brandName),
-                request.getPledgeValue(),
-                request.getPrice(),
-                cleanString(categories),
-                nutriscore,
-                cleanString(imgUrl)
-        );
-        product = productRepository.save(product);
+        Product product = productService.create(request);
 
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
-
-    private String cleanString(String input) {
-        return input == null ? null : input.replaceAll("\u0000", "");
-    }
 }
+

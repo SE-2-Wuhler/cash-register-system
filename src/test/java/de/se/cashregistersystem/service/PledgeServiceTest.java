@@ -40,7 +40,7 @@ public class PledgeServiceTest {
     private ProductRepository productRepository;
 
     @InjectMocks
-    private PledgeService pledgeService;
+    private PledgeMachineService pledgeMachineService;
 
     @BeforeEach
     public void setUp() {
@@ -61,7 +61,7 @@ public class PledgeServiceTest {
         when(newPledge.getId()).thenReturn(pledgeId);
 
         // Act
-        UUID result = pledgeService.createPledge(products);
+        UUID result = pledgeMachineService.createPledge(products);
 
         // Assert
         assertEquals(pledgeId, result);
@@ -78,7 +78,7 @@ public class PledgeServiceTest {
         when(pledgeFactory.create(products)).thenThrow(new PledgeFactory.InvalidPledgeException("Invalid pledge"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            pledgeService.createPledge(products);
+            pledgeMachineService.createPledge(products);
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -94,7 +94,7 @@ public class PledgeServiceTest {
 
         when(productRepository.findProductsWithPositivePledgeValue()).thenReturn(Optional.of(products));
 
-        List<Product> result = pledgeService.getAllPledgeItems();
+        List<Product> result = pledgeMachineService.getAllPledgeItems();
 
         assertEquals(products, result);
         verify(productRepository).findProductsWithPositivePledgeValue();
@@ -105,7 +105,7 @@ public class PledgeServiceTest {
         when(productRepository.findProductsWithPositivePledgeValue()).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            pledgeService.getAllPledgeItems();
+            pledgeMachineService.getAllPledgeItems();
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
