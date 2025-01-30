@@ -110,7 +110,7 @@ public class TransactionRecordController {
             )
     })
     @PostMapping("/complete")
-    public ResponseEntity<CompleteOrderResponseDTO> completeTransaction(
+        public ResponseEntity<CompleteOrderResponseDTO> completeTransaction(
             @Parameter(
                     description = "Transaction completion request containing PayPal order ID",
                     required = true,

@@ -2,7 +2,7 @@ package de.se.cashregistersystem.dto;
 
 public class CompleteOrderResponseDTO {
 
-    private String message;
+    private final String message;
     public CompleteOrderResponseDTO(String message) {
         this.message = message;
     }

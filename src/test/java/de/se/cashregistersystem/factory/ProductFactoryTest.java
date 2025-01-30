@@ -94,9 +94,7 @@ class ProductFactoryTest {
         char nutriscore = 'A';
         String imgUrl = "http://example.com/image.jpg";
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            productFactory.create(null, barcodeId, brandName, pledgeValue, price, category, nutriscore, imgUrl);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> productFactory.create(null, barcodeId, brandName, pledgeValue, price, category, nutriscore, imgUrl));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("Product name cannot be null or empty", exception.getReason());
@@ -112,9 +110,7 @@ class ProductFactoryTest {
         char nutriscore = 'A';
         String imgUrl = "http://example.com/image.jpg";
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            productFactory.create(name, "", brandName, pledgeValue, price, category, nutriscore, imgUrl);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> productFactory.create(name, "", brandName, pledgeValue, price, category, nutriscore, imgUrl));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("Barcode ID cannot be null or empty", exception.getReason());

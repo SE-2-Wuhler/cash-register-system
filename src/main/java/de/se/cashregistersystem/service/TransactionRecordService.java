@@ -92,7 +92,15 @@ public class TransactionRecordService {
                     "No items found for transaction: " + transactionId
             );
         }
-        List<Product> products = productRepository.findAllById(productIds.get());
+        List<Product> products = new ArrayList<>();
+        for ( UUID productId : productIds.get()){
+            Optional<Product> product = productRepository.findById(productId);
+            if(product.isEmpty()){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not find product with id: " + product);
+            }
+            products.add(product.get());
+        }
+
         complete(transactionId);
         printingService.printReceipt(products, pledges);
 

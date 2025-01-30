@@ -35,8 +35,8 @@ public class ProductService {
         String brandName = foodFacts.optString("brands", "");
         String productName = foodFacts.optString("product_name", "");
         String categories = foodFacts.optString("categories", "");
-        char nutriscore = 'A';
-        String imgUrl = "";
+        char nutriscore = foodFacts.optString("nutriscore_grade", "").toUpperCase().charAt(0);
+        String imgUrl = foodFacts.optString("image_front_small_url", "");
 
         Product product = productFactory.create(
                 cleanString(productName),

@@ -2,20 +2,14 @@ package de.se.cashregistersystem.controller;
 
 import de.se.cashregistersystem.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
 import de.se.cashregistersystem.dto.CreateProductDTO;
 import de.se.cashregistersystem.entity.Product;
-import de.se.cashregistersystem.factory.ProductFactory;
-import de.se.cashregistersystem.repository.ProductRepository;
-import de.se.cashregistersystem.service.OpenFoodFactsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
