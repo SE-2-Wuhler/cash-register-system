@@ -1,6 +1,6 @@
 package de.se.cashregistersystem.service;
 
-import de.se.cashregistersystem.controller.TransactionRecordController;
+
 import de.se.cashregistersystem.entity.TransactionRecord;
 import de.se.cashregistersystem.repository.TransactionRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ public class PayPalService {
         }
 
         String status = (String) body.get("status");
-        if (status == null) {
+        if (status == null || status.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY,
                     "Status field missing in PayPal response"
@@ -94,7 +94,6 @@ public class PayPalService {
                     "Payment incomplete. Order status is " + status
             );
         }
-
         @SuppressWarnings("unchecked")
         List<HashMap<String, String>> purchaseUnits = (List<HashMap<String, String>>) body.get("purchase_units");
         if (purchaseUnits == null || purchaseUnits.isEmpty()) {
@@ -114,16 +113,9 @@ public class PayPalService {
         }
 
         try {
-            UUID transactionUUID = UUID.fromString(transactionId);
-            TransactionRecord record = transactionRecordRepository.findById(transactionUUID)
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Transaction not found with ID: " + transactionId
-                    ));
 
-            record.setStatus("paid");
-            transactionRecordRepository.save(record);
-            return transactionUUID;
+            return UUID.fromString(transactionId);
+
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY,
@@ -155,7 +147,7 @@ public class PayPalService {
         Map<String, Object> body = response.getBody();
         if (body == null || !body.containsKey("access_token")) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_GATEWAY,
+                    HttpStatus.INTERNAL_SERVER_ERROR,
                     "Invalid response from PayPal authentication"
             );
         }

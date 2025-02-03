@@ -2,7 +2,7 @@ package de.se.cashregistersystem.dto;
 
 import java.util.UUID;
 
-public class ItemWithQuantityDTO {
+public class ProductWithQuantityDTO {
     private UUID itemId;
     private int quantity;
 
@@ -13,10 +13,10 @@ public class ItemWithQuantityDTO {
         return quantity;
     }
 
-    public ItemWithQuantityDTO() {
+    public ProductWithQuantityDTO() {
     }
 
-    public ItemWithQuantityDTO(int quantity) {
+    public ProductWithQuantityDTO(int quantity) {
         this.quantity = quantity;
     }
 

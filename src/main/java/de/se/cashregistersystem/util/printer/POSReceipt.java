@@ -1,4 +1,4 @@
-package de.se.cashregistersystem.util;
+package de.se.cashregistersystem.util.printer;
 
 public class POSReceipt extends POSDocument {
     private String title;
