@@ -16,6 +16,7 @@ public class TransactionRecordFactory {
         BigDecimal pledgesAmount = calculatePledgeAmount(pledges);
         BigDecimal totalAmount = productsAmount.subtract(pledgesAmount);
         TransactionRecord newTransactionRecord = new TransactionRecord(totalAmount);
+        newTransactionRecord.setStatus("unpaid");
         return newTransactionRecord;
     }
 

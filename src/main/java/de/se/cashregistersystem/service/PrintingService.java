@@ -1,5 +1,6 @@
 package de.se.cashregistersystem.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.util.printer.POS;
@@ -61,6 +62,10 @@ public class PrintingService {
             receipt.setPhone(PHONE);
 
             strategy.addItemsToReceipt(receipt);
+
+            double totalPrice = strategy.calculateTotalPrice();
+
+            receipt.setTotal(totalPrice);
 
             String barcodeString = generateRandomEAN13();
             try {
@@ -136,12 +141,13 @@ public class PrintingService {
         }
     }
 
-
+    @VisibleForTesting
     private interface PrintStrategy {
         void addItemsToReceipt(POSReceipt receipt);
+        double calculateTotalPrice();
     }
 
-
+    @VisibleForTesting
     private static class ItemListPrintStrategy implements PrintStrategy {
         private final List<Product> products;
         private final List<Pledge> pledges;
@@ -149,6 +155,13 @@ public class PrintingService {
         ItemListPrintStrategy(List<Product> products, List<Pledge> pledges) {
             this.products = products;
             this.pledges = pledges;
+        }
+
+        // calculate the total price of all items
+        public double calculateTotalPrice() {
+            return products.stream()
+                    .mapToDouble(Product::getPrice)
+                    .sum();
         }
 
         @Override
@@ -188,8 +201,10 @@ public class PrintingService {
                     .mapToDouble(Pledge::getValue)
                     .sum();
 
-            // Add redeemed deposit voucher if exists
-            receipt.addItem("Pfand", -totalPledgeValue);
+            // Add total pledge value if it is greater than 0
+            if (totalPledgeValue > 0) {
+                receipt.addItem("Pfand", -totalPledgeValue);
+            }
         }
     }
 
@@ -205,8 +220,13 @@ public class PrintingService {
         public void addItemsToReceipt(POSReceipt receipt) {
             receipt.addItem("Pledge Value", pledge.getValue());
         }
-    }
 
+        @Override
+        public double calculateTotalPrice() {
+            return 0;
+        }
+    }
+    @VisibleForTesting
     private static class ProductGroup {
         final int quantity;
         final double totalPrice;

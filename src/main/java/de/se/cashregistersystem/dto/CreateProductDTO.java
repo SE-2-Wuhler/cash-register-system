@@ -2,8 +2,8 @@ package de.se.cashregistersystem.dto;
 
 public class CreateProductDTO {
 
-    private String barcodeId;
-    private double price;
+    private final String barcodeId;
+    private final double price;
     private double pledgeValue;
 
     public CreateProductDTO(String barcodeId, double price, double pledgeValue) {

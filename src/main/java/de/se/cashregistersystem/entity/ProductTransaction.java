@@ -1,8 +1,13 @@
 package de.se.cashregistersystem.entity;
 
-import jakarta.persistence.*;
-
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "product_transaction")
@@ -21,6 +26,10 @@ public class ProductTransaction {
 
     @Column(name = "product_id", nullable = false)
     private UUID productId;
+
+    public ProductTransaction() {
+
+    }
 
     public UUID getTransactionRecordId() {
         return transactionRecordId;

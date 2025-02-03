@@ -39,7 +39,7 @@ public class POSReceipt extends POSDocument {
         // Feed a bit before printing the total
         addFeed(2); 
         addStyle(POSStyle.BOLD);
-        addComponent(() -> String.format("Total: %10.2f\n", total).getBytes());
+        addComponent(() -> String.format("|%-10s| |%30.2f|\n", "Total:", total).getBytes());
         resetStyle(); // Reset after total
     }
 }

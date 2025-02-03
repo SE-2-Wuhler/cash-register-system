@@ -13,8 +13,17 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class OpenFoodFactsService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final String OPEN_FOOD_FACTS_API = "https://world.openfoodfacts.org/api/v0";
+
+
+    public OpenFoodFactsService() {
+        this.restTemplate = new RestTemplate();
+    }
+    
+    public OpenFoodFactsService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public JSONObject getProductByBarcode(String barcode) {
         // Validate barcode

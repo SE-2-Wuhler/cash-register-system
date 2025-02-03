@@ -14,6 +14,8 @@ public interface ProductTransactionRepository extends JpaRepository<ProductTrans
     @Query("SELECT it.productId FROM ProductTransaction it WHERE it.transactionRecordId = :transactionId")
     Optional<List<UUID>> getProductsByTransactionId(@Param("transactionId") UUID transactionId);
 
+    void deleteByTransactionRecordId(UUID transactionId);
+
 }
 
 
