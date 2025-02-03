@@ -46,7 +46,7 @@ public class PrintingService {
             System.out.println("Mock Printing Receipt: " + strategy.toString());
             return "xxDebugxx";
         }
-        
+
             PrintService printerService = findPrintService(PRINTER_NAME);
             if (printerService == null) {
                 throw new ResponseStatusException(
@@ -93,7 +93,7 @@ public class PrintingService {
 
             return barcodeString;
     }
-    
+
 
     private PrintService findPrintService(String printerName) {
         try {

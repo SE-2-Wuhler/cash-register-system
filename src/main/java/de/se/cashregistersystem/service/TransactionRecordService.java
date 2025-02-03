@@ -106,6 +106,15 @@ public class TransactionRecordService {
         complete(transactionId ,receiptBarcodeId );
 
     }
+    public void scan(String barcodeId) {
+        Optional<TransactionRecord> transactionRecord = transactionRecordRepository.findPaidTransactionRecord(barcodeId);
+        if(!transactionRecord.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No paid Transaction Record");
+        }
+        TransactionRecord record = transactionRecord.get();
+        record.setStatus("scanned");
+        transactionRecordRepository.save(record);
+    }
 
     public void complete(UUID transactionId, String receiptBarcodeId){
         TransactionRecord transactionRecord = transactionRecordRepository.findById(transactionId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not find transaction with id: " + transactionId));

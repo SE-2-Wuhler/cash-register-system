@@ -25,8 +25,6 @@ public class TransactionRecord {
     @Column(name = "barcode_id")
     private String barcodeId;
 
-
-
     @Column(name = "status")
     private String status;
 
@@ -64,4 +62,5 @@ public class TransactionRecord {
     public void setBarcodeId(String barcodeId) {
         this.barcodeId = barcodeId;
     }
+
 }
