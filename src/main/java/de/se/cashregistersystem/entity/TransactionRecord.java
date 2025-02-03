@@ -35,6 +35,10 @@ public class TransactionRecord {
     public TransactionRecord() {
         this.status = "unpaid";
     }
+    public TransactionRecord(UUID id) {
+        this.id = id;
+        this.status = "unpaid";
+    }
 
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;

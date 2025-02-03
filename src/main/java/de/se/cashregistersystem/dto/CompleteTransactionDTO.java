@@ -8,5 +8,9 @@ public class CompleteTransactionDTO {
         return orderId;
     }
 
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
 
 }

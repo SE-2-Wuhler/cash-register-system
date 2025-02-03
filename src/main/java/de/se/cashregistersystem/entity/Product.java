@@ -87,6 +87,12 @@ public class Product implements Scanable {
         this.category = category;
     }
 
+    public Product(String name, double price, double pledgeValue) {
+        this.name = name;
+        this.price = price;
+        this.pledgeValue = pledgeValue;
+    }
+
     public UUID getId() {
         return id;
     }

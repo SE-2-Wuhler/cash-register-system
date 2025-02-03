@@ -20,5 +20,10 @@ public class ProductWithQuantityDTO {
         this.quantity = quantity;
     }
 
+    public ProductWithQuantityDTO(UUID itemId, int quantity) {
+        this.itemId = itemId;
+        this.quantity = quantity;
+    }
+
 }
 
