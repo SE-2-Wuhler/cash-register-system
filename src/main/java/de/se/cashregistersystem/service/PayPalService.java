@@ -1,34 +1,20 @@
+// PayPalService.java
 package de.se.cashregistersystem.service;
 
-
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-@Service
-public class PayPalService {
+import java.util.*;
 
-    @Autowired
+@Service
+public class PayPalService extends PaymentService {
+
     private static final String PAYPAL_API = "https://api-m.sandbox.paypal.com";
 
     @Value("${paypal.client.id}")
@@ -47,17 +33,40 @@ public class PayPalService {
         this.restTemplate = restTemplate;
     }
 
-    public UUID verifyPayment(String orderId) {
-        String accessToken;
-        try {
-            accessToken = this.getAccessToken();
-        } catch (RestClientException e) {
+    @Override
+    protected String authenticate() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        String auth = clientId + ":" + clientSecret;
+        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
+        headers.set("Authorization", "Basic " + new String(encodedAuth));
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "client_credentials");
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                PAYPAL_API + "/v1/oauth2/token",
+                HttpMethod.POST,
+                entity,
+                Map.class
+        );
+
+        Map<String, Object> body = response.getBody();
+        if (body == null || !body.containsKey("access_token")) {
             throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Failed to authenticate with PayPal: " + e.getMessage()
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Invalid response from PayPal authentication"
             );
         }
 
+        return (String) body.get("access_token");
+    }
+
+    @Override
+    protected UUID verifyPayment(String orderId, String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
@@ -79,16 +88,6 @@ public class PayPalService {
                         "Empty response from PayPal API"
                 );
             }
-        } catch (HttpClientErrorException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Client error when calling PayPal API: " + e.getStatusText()
-            );
-        } catch (HttpServerErrorException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_GATEWAY,
-                    "PayPal server error: " + e.getStatusText()
-            );
         } catch (RestClientException e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -128,45 +127,12 @@ public class PayPalService {
         }
 
         try {
-
             return UUID.fromString(transactionId);
-
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY,
                     "Invalid transaction ID format received from PayPal: " + transactionId
             );
         }
-    }
-
-    private String getAccessToken() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-        String auth = clientId + ":" + clientSecret;
-        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
-        headers.set("Authorization", "Basic " + new String(encodedAuth));
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", "client_credentials");
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
-
-        ResponseEntity<Map> response = restTemplate.exchange(
-                PAYPAL_API + "/v1/oauth2/token",
-                HttpMethod.POST,
-                entity,
-                Map.class
-        );
-
-        Map<String, Object> body = response.getBody();
-        if (body == null || !body.containsKey("access_token")) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Invalid response from PayPal authentication"
-            );
-        }
-
-        return (String) body.get("access_token");
     }
 }

@@ -34,7 +34,7 @@ public class TransactionRecordService {
     @Autowired
     private TransactionRecordFactory transactionRecordFactory;
     @Autowired
-    private PayPalService paypalService;
+    private PaymentService paymentService;
     @Autowired
     private PrintingService printingService;
 
@@ -82,7 +82,7 @@ public class TransactionRecordService {
                     "Order ID cannot be null or empty"
             );
         }
-        UUID transactionId = paypalService.verifyPayment(orderId);
+        UUID transactionId = paymentService.processPayment(orderId);
 
         Optional<List<UUID>> productIds = productTransactionRepository.getProductsByTransactionId(transactionId);
         Optional<List<Pledge>> pledges = pledgeRepository.findPledgesByTransactionId(transactionId);
