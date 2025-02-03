@@ -90,6 +90,7 @@ class TransactionRecordServiceTest {
         when(pledgeRepository.findPledgesByTransactionId(transactionId)).thenReturn(Optional.of(pledges));
         when(productRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Product()));
         when(transactionRecordRepository.findById(transactionId)).thenReturn(Optional.of(new TransactionRecord()));
+        when(printingService.printReceipt(anyList(), anyList())).thenReturn("109238574");
 
         transactionRecordService.completeTransaction(body);
 

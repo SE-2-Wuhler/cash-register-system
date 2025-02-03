@@ -104,7 +104,6 @@ public class TransactionRecordService {
 
         String receiptBarcodeId = printingService.printReceipt(products, pledges.get());
         complete(transactionId, receiptBarcodeId);
-        printingService.printReceipt(products, pledges.get());
 
     }
     public void scan(String barcodeId) {
