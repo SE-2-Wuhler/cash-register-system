@@ -66,5 +66,8 @@ public class TransactionRecord {
     public void setBarcodeId(String barcodeId) {
         this.barcodeId = barcodeId;
     }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
 }

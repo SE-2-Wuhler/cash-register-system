@@ -175,4 +175,8 @@ public class Product implements Scanable {
         return category;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
 }

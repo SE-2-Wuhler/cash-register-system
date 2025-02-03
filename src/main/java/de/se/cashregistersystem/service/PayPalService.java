@@ -109,7 +109,7 @@ public class PayPalService extends PaymentService {
             );
         }
         @SuppressWarnings("unchecked")
-        List<HashMap<String, String>> purchaseUnits = (List<HashMap<String, String>>) body.get("purchase_units");
+        List<Map<String, String>> purchaseUnits = (List<Map<String, String>>) body.get("purchase_units");
         if (purchaseUnits == null || purchaseUnits.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY,
@@ -117,7 +117,7 @@ public class PayPalService extends PaymentService {
             );
         }
 
-        HashMap<String, String> purchaseUnit = purchaseUnits.get(0);
+        Map<String, String> purchaseUnit = purchaseUnits.get(0);
         String transactionId = purchaseUnit.get("reference_id");
         if ("default".equals(transactionId)) {
             throw new ResponseStatusException(

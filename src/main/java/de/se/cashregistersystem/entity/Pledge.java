@@ -64,4 +64,8 @@ public class Pledge implements Scanable {
     public boolean isPledge() {
         return true;
     }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 }

@@ -123,14 +123,15 @@ public class TransactionRecordService {
         transactionRecordRepository.save(transactionRecord);
     }
     @Transactional
-    public void cancel(UUID transactionId){
-        pledgeRepository.findPledgesByTransactionId(transactionId).get().forEach(pledge -> {
+    public void cancel(UUID transactionId) {
+        List<Pledge> pledges = pledgeRepository.findPledgesByTransactionId(transactionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found."));
+        pledges.forEach(pledge -> {
             pledge.setTransactionId(null);
             pledgeRepository.save(pledge);
         });
         productTransactionRepository.deleteByTransactionRecordId(transactionId);
         transactionRecordRepository.deleteById(transactionId);
-
     }
 
     private List<Product> getProductsList(ProductWithQuantityDTO[] products){
