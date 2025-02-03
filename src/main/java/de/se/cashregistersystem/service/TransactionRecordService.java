@@ -101,7 +101,9 @@ public class TransactionRecordService {
             products.add(product.get());
         }
 
-        complete(transactionId);
+
+        String receiptBarcodeId = printingService.printReceipt(products, pledges.get());
+        complete(transactionId, receiptBarcodeId);
         printingService.printReceipt(products, pledges.get());
 
     }
@@ -115,9 +117,10 @@ public class TransactionRecordService {
         transactionRecordRepository.save(record);
     }
 
-    public void complete(UUID transactionId){
+    public void complete(UUID transactionId, String receiptBarcodeId){
         TransactionRecord transactionRecord = transactionRecordRepository.findById(transactionId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not find transaction with id: " + transactionId));
         transactionRecord.setStatus("paid");
+        transactionRecord.setBarcodeId(receiptBarcodeId);
         transactionRecordRepository.save(transactionRecord);
     }
     @Transactional
