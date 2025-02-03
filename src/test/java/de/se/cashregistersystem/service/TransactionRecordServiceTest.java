@@ -119,7 +119,7 @@ class TransactionRecordServiceTest {
 
         when(transactionRecordRepository.findById(transactionId)).thenReturn(java.util.Optional.of(transactionRecord));
 
-        transactionRecordService.complete(transactionId);
+        transactionRecordService.complete(transactionId, "");
         when(transactionRecord.getStatus()).thenReturn("paid");
         assertEquals("paid", transactionRecord.getStatus());
         verify(transactionRecordRepository).save(transactionRecord);
@@ -132,7 +132,7 @@ class TransactionRecordServiceTest {
         when(transactionRecordRepository.findById(transactionId)).thenReturn(java.util.Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            transactionRecordService.complete(transactionId);
+            transactionRecordService.complete(transactionId, "");
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
