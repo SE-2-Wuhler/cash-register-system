@@ -119,7 +119,7 @@ public class PrintingService {
 
             // Generate first 12 digits randomly
             for (int i = 0; i < 12; i++) {
-                sb.append(random.nextInt(10));
+                sb.append(random.nextInt(1, 10));
             }
 
             // Calculate check digit
@@ -223,7 +223,7 @@ public class PrintingService {
 
         @Override
         public double calculateTotalPrice() {
-            return 0;
+            return this.pledge.getValue();
         }
     }
     @VisibleForTesting

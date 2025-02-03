@@ -103,7 +103,7 @@ public class PayPalService {
                     "Status field missing in PayPal response"
             );
         }
-        if (!status.equals("COMPLETED")) {
+        if (!"APPROVED".equals(status)) {
             throw new ResponseStatusException(
                     HttpStatus.PAYMENT_REQUIRED,
                     "Payment incomplete. Order status is " + status
