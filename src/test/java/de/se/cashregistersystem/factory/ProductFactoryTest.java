@@ -28,6 +28,13 @@ class ProductFactoryTest {
     @InjectMocks
     private ProductFactory productFactory;
 
+    @Mock
+    private BrandFactory brandFactory;
+
+
+    @Mock
+    private Brand brand;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -44,10 +51,12 @@ class ProductFactoryTest {
         char nutriscore = 'A';
         String imgUrl = "http://example.com/image.jpg";
 
+        Brand brand = mock(Brand.class);
+
         when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
         when(brandRepository.findBrandByName(brandName)).thenReturn(Optional.empty());
         when(brandRepository.save(any(Brand.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
+        when(brandFactory.create(anyString())).thenReturn(new Brand());
         Product product = productFactory.create(name, barcodeId, brandName, pledgeValue, price, category, nutriscore, imgUrl);
 
         assertNotNull(product);

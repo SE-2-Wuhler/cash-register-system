@@ -10,8 +10,4 @@ public class BrandFactory {
         return new Brand(name, "default");
     }
 
-    Brand create(String name, String address) {
-        return new Brand(name, address);
-    }
-
 }

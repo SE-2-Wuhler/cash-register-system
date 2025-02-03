@@ -5,6 +5,7 @@ import de.se.cashregistersystem.entity.Product;
 import de.se.cashregistersystem.factory.ProductFactory;
 import de.se.cashregistersystem.repository.ProductRepository;
 import de.se.cashregistersystem.service.OpenFoodFactsService;
+import de.se.cashregistersystem.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,6 +31,9 @@ class ProductControllerTest {
     @Mock
     private ProductFactory productFactory;
 
+    @Mock
+    private ProductService productService;
+
     @InjectMocks
     private ProductController productController;
 
@@ -41,18 +45,8 @@ class ProductControllerTest {
     @Test
     void create_withValidRequest_createsProduct() {
         CreateProductDTO request = new CreateProductDTO("validBarcode", 10.0, 1.0);
-        JSONObject foodFacts = new JSONObject();
-        try {
-            foodFacts.put("brands", "BrandName");
-            foodFacts.put("product_name", "ProductName");
-            foodFacts.put("categories", "Category");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        when(foodService.getProductByBarcode(request.getBarcodeId())).thenReturn(foodFacts);
         Product product = new Product();
-        when(productFactory.create(anyString(), anyString(), anyString(), anyDouble(), anyDouble(), anyString(), anyChar(), anyString())).thenReturn(product);
-        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productService.create(any(CreateProductDTO.class))).thenReturn(product);
 
         ResponseEntity<Product> response = productController.create(request);
 
@@ -63,6 +57,7 @@ class ProductControllerTest {
     @Test
     void create_withMissingBarcode_throwsBadRequest() {
         CreateProductDTO request = new CreateProductDTO("", 10.0, 1.0);
+        when(productService.create(request)).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode ID is required"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> productController.create(request));
 
@@ -74,6 +69,8 @@ class ProductControllerTest {
     void create_withInvalidPrice_throwsBadRequest() {
         CreateProductDTO request = new CreateProductDTO("validBarcode", 0, 1.0);
 
+        when(productService.create(request)).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price is required"));
+
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> productController.create(request));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -83,7 +80,7 @@ class ProductControllerTest {
     @Test
     void create_withNonExistentProduct_throwsNotFound() {
         CreateProductDTO request = new CreateProductDTO("validBarcode", 10.0, 1.0);
-        when(foodService.getProductByBarcode(request.getBarcodeId())).thenReturn(null);
+        when(productService.create(any(CreateProductDTO.class))).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found for the given barcode"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> productController.create(request));
 

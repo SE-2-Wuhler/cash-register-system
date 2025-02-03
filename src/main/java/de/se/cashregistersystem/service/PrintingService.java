@@ -94,7 +94,7 @@ public class PrintingService {
             return barcodeString;
     }
 
-
+    @VisibleForTesting
     private PrintService findPrintService(String printerName) {
         try {
             PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
@@ -111,7 +111,7 @@ public class PrintingService {
             );
         }
     }
-
+    @VisibleForTesting
     private String generateRandomEAN13() {
         try {
             Random random = new Random();

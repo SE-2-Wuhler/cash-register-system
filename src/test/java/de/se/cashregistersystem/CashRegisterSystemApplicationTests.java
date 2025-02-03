@@ -10,4 +10,5 @@ class CashRegisterSystemApplicationTests {
     void contextLoads() {
     }
 
+
 }

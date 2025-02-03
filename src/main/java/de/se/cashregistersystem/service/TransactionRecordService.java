@@ -85,8 +85,8 @@ public class TransactionRecordService {
         UUID transactionId = paypalService.verifyPayment(orderId);
 
         Optional<List<UUID>> productIds = productTransactionRepository.getProductsByTransactionId(transactionId);
-        List<Pledge> pledges = pledgeRepository.findPledgesByTransactionId(transactionId).get();
-        if (productIds.isEmpty() && pledges.isEmpty()) {
+        Optional<List<Pledge>> pledges = pledgeRepository.findPledgesByTransactionId(transactionId);
+        if (productIds.isEmpty() || pledges.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "No items found for transaction: " + transactionId
@@ -102,7 +102,7 @@ public class TransactionRecordService {
         }
 
         complete(transactionId);
-        printingService.printReceipt(products, pledges);
+        printingService.printReceipt(products, pledges.get());
 
     }
     public void scan(String barcodeId) {

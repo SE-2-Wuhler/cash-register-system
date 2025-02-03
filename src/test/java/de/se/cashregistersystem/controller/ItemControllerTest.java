@@ -6,6 +6,7 @@ import de.se.cashregistersystem.entity.Pledge;
 import de.se.cashregistersystem.repository.ProductRepository;
 import de.se.cashregistersystem.repository.PledgeRepository;
 import de.se.cashregistersystem.dto.Scanable;
+import de.se.cashregistersystem.service.ItemService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +34,9 @@ class ItemControllerTest {
     @InjectMocks
     private ItemController itemController;
 
+    @Mock
+    private ItemService itemService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -41,7 +46,7 @@ class ItemControllerTest {
     void getById_withValidProductBarcode_returnsProduct() {
         String barcodeId = "validProductBarcode";
         Product product = new Product();
-        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.of(product));
+        when(itemService.getById(barcodeId)).thenReturn(product);
 
         ResponseEntity<Scanable> response = itemController.getById(barcodeId);
 
@@ -53,8 +58,7 @@ class ItemControllerTest {
     void getById_withValidPledgeBarcode_returnsPledge() {
         String barcodeId = "validPledgeBarcode";
         Pledge pledge = new Pledge();
-        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
-        when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.of(pledge));
+        when(itemService.getById(barcodeId)).thenReturn(pledge);
 
         ResponseEntity<Scanable> response = itemController.getById(barcodeId);
 
@@ -65,6 +69,7 @@ class ItemControllerTest {
     @Test
     void getById_withInvalidBarcode_throwsBadRequest() {
         String barcodeId = " ";
+        when(itemService.getById(barcodeId)).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode cannot be null or empty"));
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> itemController.getById(barcodeId));
         ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.BAD_REQUEST, "Barcode cannot be null or empty");
         assertEquals(responseStatusException.getMessage(), exception.getMessage());
@@ -73,8 +78,7 @@ class ItemControllerTest {
     @Test
     void getById_withNonExistentBarcode_throwsNotFound() {
         String barcodeId = "nonExistentBarcode";
-        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
-        when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.empty());
+        when(itemService.getById(barcodeId)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "No product or valid pledge found with barcode: nonExistentBarcode"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> itemController.getById(barcodeId));
         ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.NOT_FOUND, "No product or valid pledge found with barcode: nonExistentBarcode");
@@ -85,22 +89,18 @@ class ItemControllerTest {
     void getById_withValidatedPledge_throwsNotFound() {
         String barcodeId = "validatedPledgeBarcode";
         Pledge pledge = mock(Pledge.class);
-        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
-        when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.of(pledge));
-
         when(pledge.isValidated()).thenReturn(true);
-        when(productRepository.findProductByBarcodeId(barcodeId)).thenReturn(Optional.empty());
-        when(pledgeRepository.findPledgeByBarcodeId(barcodeId)).thenReturn(Optional.of(pledge));
+        when(itemService.getById(barcodeId)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "No product or valid pledge found with barcode: " + barcodeId));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> itemController.getById(barcodeId));
-        ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.NOT_FOUND, "No product or valid pledge found with barcode: validatedPledgeBarcode");
-        assertEquals(responseStatusException.getMessage(), exception.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("No product or valid pledge found with barcode: " + barcodeId, exception.getReason());
     }
 
     @Test
     void getById_withNonScanableItems_returnsItems() {
         List<Product> products = List.of(new Product(), new Product());
-        when(productRepository.findAllByIsNonScanableTrue()).thenReturn(Optional.of(products));
+        when(itemService.getAllNonScanableProducts()).thenReturn(products);
 
         ResponseEntity<List<Product>> response = itemController.getById();
 
@@ -110,12 +110,10 @@ class ItemControllerTest {
 
     @Test
     void getById_withNoNonScanableItems_throwsNotFound() {
-        when(productRepository.findAllByIsNonScanableTrue()).thenReturn(Optional.empty());
+        when(itemService.getAllNonScanableProducts()).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Did not find nonscanable items"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> itemController.getById());
-        ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.NOT_FOUND, "Did not find nonscanable items");
-
-        assertEquals(responseStatusException.getMessage(), exception.getMessage());
-
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Did not find nonscanable items", exception.getReason());
     }
 }

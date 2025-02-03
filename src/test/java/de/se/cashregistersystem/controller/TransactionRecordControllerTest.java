@@ -59,7 +59,7 @@ class TransactionRecordControllerTest {
     void getTransactionById_withValidId_returnsTransaction() {
         UUID id = UUID.randomUUID();
         TransactionRecord transaction = new TransactionRecord();
-        when(transactionRecordRepository.findById(id)).thenReturn(Optional.of(transaction));
+        when(service.getTransactionRecord(id)).thenReturn(transaction);
 
         ResponseEntity<TransactionRecord> response = transactionRecordController.getTransactionById(id);
 
@@ -70,7 +70,7 @@ class TransactionRecordControllerTest {
     @Test
     void getTransactionById_withInvalidId_throwsNotFound() {
         UUID id = UUID.randomUUID();
-        when(transactionRecordRepository.findById(id)).thenReturn(Optional.empty());
+        when(service.getTransactionRecord(id)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found."));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionRecordController.getTransactionById(id));
 
@@ -94,15 +94,7 @@ class TransactionRecordControllerTest {
     void completeTransaction_withValidOrderId_completesTransaction() {
         CompleteTransactionDTO body = mock(CompleteTransactionDTO.class);
         when(body.getOrderId()).thenReturn("validOrderId");
-        UUID transactionId = UUID.randomUUID();
-        List<UUID> productIds = List.of(UUID.randomUUID());
-        List<Pledge> pledges = List.of(new Pledge());
-        List<Product> products = List.of(new Product());
-
-        when(paypalService.verifyPayment(body.getOrderId())).thenReturn(transactionId);
-        when(productTransactionRepository.getProductsByTransactionId(transactionId)).thenReturn(Optional.of(productIds));
-        when(pledgeRepository.findPledgesByTransactionId(transactionId)).thenReturn(Optional.of(pledges));
-        when(productRepository.findAllById(productIds)).thenReturn(products);
+        doNothing().when(service).completeTransaction(body);
 
         ResponseEntity<CompleteOrderResponseDTO> response = transactionRecordController.completeTransaction(body);
 
@@ -114,7 +106,7 @@ class TransactionRecordControllerTest {
     void completeTransaction_withInvalidOrderId_throwsBadRequest() {
         CompleteTransactionDTO body = mock(CompleteTransactionDTO.class);
         when(body.getOrderId()).thenReturn(" ");
-
+        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order ID cannot be null or empty")).when(service).completeTransaction(body);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionRecordController.completeTransaction(body));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -125,20 +117,55 @@ class TransactionRecordControllerTest {
     void completeTransaction_withNoItemsFound_throwsNotFound() {
         CompleteTransactionDTO body = mock(CompleteTransactionDTO.class);
         when(body.getOrderId()).thenReturn("validOrderId");
-        UUID transactionId = UUID.randomUUID();
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "No items found for transaction")).when(service).completeTransaction(body);
 
-        when(paypalService.verifyPayment(body.getOrderId())).thenReturn(transactionId);
-        when(productTransactionRepository.getProductsByTransactionId(transactionId)).thenReturn(Optional.empty());
-        when(pledgeRepository.findPledgesByTransactionId(transactionId)).thenReturn(Optional.of(new ArrayList<Pledge>()));
-
-        ResponseStatusException exception1 = assertThrows(ResponseStatusException.class, () -> transactionRecordController.completeTransaction(body));
-        when(body.getOrderId()).thenReturn(null);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionRecordController.completeTransaction(body));
 
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("No items found for transaction", exception.getReason());
+    }
 
-        assertEquals(HttpStatus.NOT_FOUND, exception1.getStatusCode());
-        assertEquals("No items found for transaction: " + transactionId, exception1.getReason());
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("Order ID cannot be null or empty", exception.getReason());
+    @Test
+    void cancel_withValidId_cancelsTransaction() {
+        UUID id = UUID.randomUUID();
+        doNothing().when(service).cancel(id);
+
+        ResponseEntity<CompleteOrderResponseDTO> response = transactionRecordController.cancel(id);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Transaction cancelled", response.getBody().getMessage());
+    }
+
+    @Test
+    void cancel_withInvalidId_throwsNotFound() {
+        UUID id = UUID.randomUUID();
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found")).when(service).cancel(id);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionRecordController.cancel(id));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Transaction not found", exception.getReason());
+    }
+
+    @Test
+    void scanTransaction_withValidBarcode_scansTransaction() {
+        String barcodeId = "validBarcode";
+        doNothing().when(service).scan(barcodeId);
+
+        ResponseEntity<Object> response = transactionRecordController.scanTransaction(barcodeId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Transaction successfully scanned", ((CompleteOrderResponseDTO) response.getBody()).getMessage());
+    }
+
+    @Test
+    void scanTransaction_withInvalidBarcode_throwsNotFound() {
+        String barcodeId = "invalidBarcode";
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "No paid Transaction Record found")).when(service).scan(barcodeId);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionRecordController.scanTransaction(barcodeId));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("No paid Transaction Record found", exception.getReason());
     }
 }

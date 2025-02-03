@@ -41,6 +41,6 @@ public class TransactionRecordTest {
     public void testDefaultConstructor() {
         TransactionRecord record = new TransactionRecord();
         assertNull(record.getTotalAmount());
-        assertNull(record.getStatus());
+        assertEquals(record.getStatus(), "unpaid");
     }
 }
