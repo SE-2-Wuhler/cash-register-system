@@ -149,5 +149,28 @@ public class TransactionRecordController {
                 HttpStatus.OK
         );
     }
-
+    @Operation(
+            summary = "Scan a transaction",
+            description = "Scans a transaction based on the provided barcode ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Transaction successfully scanned",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CompleteOrderResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No paid Transaction Record found",
+                    content = @Content
+            )
+    })
+    @PostMapping("/scan/{barcode_id}")
+    public ResponseEntity<Object> scanTransaction(@PathVariable String barcode_id){
+        service.scan(barcode_id);
+        return new ResponseEntity<>(new CompleteOrderResponseDTO("Transaction successfully scanned"), HttpStatus.OK);
+    }
 }

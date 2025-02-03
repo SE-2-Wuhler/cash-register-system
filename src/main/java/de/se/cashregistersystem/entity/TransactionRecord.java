@@ -19,10 +19,11 @@ public class TransactionRecord {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "totalAmount", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-
+    @Column(name = "barcode_id")
+    private String barcodeId;
 
     @Column(name = "status")
     private String status;
@@ -53,4 +54,13 @@ public class TransactionRecord {
     public String getStatus() {
         return status;
     }
+
+    public String getBarcodeId() {
+        return barcodeId;
+    }
+
+    public void setBarcodeId(String barcodeId) {
+        this.barcodeId = barcodeId;
+    }
+
 }
