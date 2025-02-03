@@ -159,9 +159,15 @@ public class PrintingService {
 
         // calculate the total price of all items
         public double calculateTotalPrice() {
-            return products.stream()
-                    .mapToDouble(Product::getPrice)
+            double totalPledgeValue = pledges.stream()
+                    .mapToDouble(Pledge::getValue)
                     .sum();
+
+            double totalProductPrice = products.stream()
+                    .mapToDouble(product -> product.getPrice() + product.getPledgeValue())
+                    .sum();
+
+            return totalProductPrice - totalPledgeValue;
         }
 
         @Override
